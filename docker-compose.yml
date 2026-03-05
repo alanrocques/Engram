@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: mnemosyne-postgres
+    environment:
+      POSTGRES_USER: mnemosyne
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mnemosyne
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnemosyne"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mnemosyne-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mnemosyne-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mnemosyne:password@postgres:5432/mnemosyne
+      REDIS_URL: redis://redis:6379/0
+      API_HOST: "0.0.0.0"
+      API_PORT: "8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+  redis_data:
