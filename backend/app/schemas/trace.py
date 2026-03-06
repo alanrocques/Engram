@@ -20,6 +20,11 @@ class TraceCreate(BaseModel):
     agent_id: str = Field(..., min_length=1, max_length=255)
     trace_data: dict[str, Any] = Field(..., description="Raw trace data from agent")
     span_count: int = Field(default=0, ge=0)
+    outcome: str = Field(
+        default="unknown",
+        pattern="^(success|failure|partial|unknown)$",
+        description="Outcome of the trace for extraction routing",
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -35,6 +40,7 @@ class TraceCreate(BaseModel):
                     ]
                 },
                 "span_count": 1,
+                "outcome": "success",
             }
         }
     )
@@ -50,5 +56,39 @@ class TraceResponse(BaseModel):
     status: TraceStatus
     created_at: datetime
     processed_at: datetime | None = None
+    content_hash: str | None = None
+    outcome: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TraceBatchCreate(BaseModel):
+    """Schema for batch trace ingestion."""
+
+    agent_id: str = Field(..., min_length=1, max_length=255)
+    traces: list[dict[str, Any]] = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        description="Array of trace data objects (max 50)",
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "agent_id": "support-bot-v2",
+                "traces": [
+                    {"action": "handle_refund", "result": "success"},
+                    {"action": "send_email", "result": "success"},
+                ],
+            }
+        }
+    )
+
+
+class TraceBatchResponse(BaseModel):
+    """Response schema for batch trace ingestion."""
+
+    created: int = Field(..., description="Number of traces created")
+    skipped: int = Field(..., description="Number of traces skipped (duplicates)")
+    trace_ids: list[str] = Field(..., description="IDs of created traces")

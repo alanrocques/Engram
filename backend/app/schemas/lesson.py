@@ -55,6 +55,7 @@ class LessonUpdate(BaseModel):
     tags: list[str] | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     domain: str | None = Field(default=None, max_length=100)
+    is_archived: bool | None = Field(default=None, description="Archive/unarchive the lesson")
 
 
 class LessonResponse(BaseModel):
@@ -74,5 +75,41 @@ class LessonResponse(BaseModel):
     source_trace_id: UUID | None = None
     version: int
     domain: str
+    is_archived: bool = False
+    has_conflict: bool = False
+    conflict_ids: list[UUID] = Field(default_factory=list)
+    utility: float = 0.5
+    retrieval_count: int = 0
+    success_count: int = 0
+    last_retrieved_at: datetime | None = None
+    lesson_type: str = "general"
+    extraction_mode: str | None = None
+    parent_lesson_ids: list[UUID] = Field(default_factory=list)
+    child_lesson_ids: list[UUID] = Field(default_factory=list)
+    propagation_penalty: float = 0.0
+    needs_review: bool = False
+    review_reason: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ConflictResponse(BaseModel):
+    """Schema for a lesson conflict."""
+
+    id: str
+    agent_id: str
+    task_context: str
+    action_taken: str
+    outcome: str
+    lesson_text: str
+    confidence: float
+    conflict_ids: list[str]
+    domain: str
+    created_at: str
+
+
+class ConflictListResponse(BaseModel):
+    """Response schema for listing conflicts."""
+
+    conflicts: list[ConflictResponse]
+    total: int
