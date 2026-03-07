@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
+import { useOverviewStats } from "@/hooks/use-overview-stats";
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -40,6 +41,8 @@ function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useUiStore();
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
+  const { data: stats } = useOverviewStats();
+  const reviewBadge = (stats?.flagged_count ?? 0) + (stats?.conflict_count ?? 0);
 
   return (
     <aside
@@ -74,6 +77,7 @@ function Sidebar() {
             to === "/"
               ? currentPath === "/"
               : currentPath.startsWith(to);
+          const badge = to === "/flagged" && reviewBadge > 0 ? reviewBadge : null;
           return (
             <Link
               key={to}
@@ -88,7 +92,16 @@ function Sidebar() {
               title={sidebarCollapsed ? label : undefined}
             >
               <Icon className="h-4 w-4 flex-shrink-0" />
-              {!sidebarCollapsed && <span className="truncate">{label}</span>}
+              {!sidebarCollapsed && <span className="truncate flex-1">{label}</span>}
+              {badge !== null && (
+                <span className={cn(
+                  "flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium leading-none",
+                  "bg-amber-500/20 text-amber-400",
+                  sidebarCollapsed && "absolute right-0.5 top-0.5 h-4 w-4 flex items-center justify-center p-0",
+                )}>
+                  {badge}
+                </span>
+              )}
             </Link>
           );
         })}

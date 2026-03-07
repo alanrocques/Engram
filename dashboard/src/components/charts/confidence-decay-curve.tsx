@@ -83,7 +83,7 @@ export function ConfidenceDecayCurve({ lessons }: ConfidenceDecayCurveProps) {
             fontSize: 12,
           }}
           labelStyle={{ color: "#e4e4e7" }}
-          formatter={(value: number) => [`${Math.round(value * 100)}%`, "Avg Confidence"]}
+          formatter={(value: unknown) => [`${typeof value === "number" ? Math.round(value * 100) : 0}%`, "Avg Confidence"]}
         />
         <Line
           type="monotone"

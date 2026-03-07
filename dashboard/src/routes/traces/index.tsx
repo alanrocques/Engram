@@ -14,7 +14,7 @@ import {
 import { ChevronDown, ChevronRight, ChevronUp, Inbox, Zap } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { useTraces } from "@/hooks/use-traces";
-import { cn, formatRelative, truncate } from "@/lib/utils";
+import { cn, formatRelative } from "@/lib/utils";
 import type { Trace } from "@/types/api";
 
 export const Route = createFileRoute("/traces/")({

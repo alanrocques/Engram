@@ -25,7 +25,7 @@ export const Route = createFileRoute("/lessons/")({
 });
 
 function ConfidenceBar({ confidence }: { confidence: number }) {
-  const { bg, text } = confidenceToColor(confidence);
+  const { text } = confidenceToColor(confidence);
   const pct = Math.round(confidence * 100);
   return (
     <div className="flex items-center gap-2">
@@ -225,7 +225,6 @@ function LessonsPage() {
 
   function handleBulkArchive(archive: boolean) {
     const selectedRows = table.getSelectedRowModel().rows;
-    const mutation = archive ? archiveMutation : updateMutation;
     for (const row of selectedRows) {
       if (archive) {
         archiveMutation.mutate(row.original.id, {

@@ -69,7 +69,7 @@ export function UtilityDistribution({ lessons }: UtilityDistributionProps) {
             borderRadius: 8,
             fontSize: 12,
           }}
-          labelFormatter={(label: string) => `Utility: ${label}`}
+          labelFormatter={(label: unknown) => `Utility: ${String(label)}`}
           labelStyle={{ color: "#e4e4e7" }}
         />
         <Bar dataKey="count" radius={[4, 4, 0, 0]}>

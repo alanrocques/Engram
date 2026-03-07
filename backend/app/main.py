@@ -46,13 +46,14 @@ def create_app() -> FastAPI:
     )
 
     # Include API routers
-    from app.api.routes import failure_queue, lessons, outcomes, retrieve, traces
+    from app.api.routes import config, failure_queue, lessons, outcomes, retrieve, traces
 
     app.include_router(traces.router, prefix="/api/v1")
     app.include_router(lessons.router, prefix="/api/v1")
     app.include_router(retrieve.router, prefix="/api/v1")
     app.include_router(outcomes.router, prefix="/api/v1")
     app.include_router(failure_queue.router, prefix="/api/v1")
+    app.include_router(config.router, prefix="/api/v1")
 
     # Health check endpoint
     @app.get("/health")
