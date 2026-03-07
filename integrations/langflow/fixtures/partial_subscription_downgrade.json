@@ -1,0 +1,56 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Process subscription downgrade with feature migration issues",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "subscription_downgrade", "channel": "chat"},
+        "duration_ms": 90
+      },
+      {
+        "name": "lookup_subscription",
+        "status": "ok",
+        "attributes": {"current_plan": "enterprise", "target_plan": "pro", "monthly_cost_current": 99.99},
+        "duration_ms": 75
+      },
+      {
+        "name": "check_feature_compatibility",
+        "status": "ok",
+        "attributes": {
+          "incompatible_features": ["advanced_analytics", "custom_integrations"],
+          "data_at_risk": true,
+          "migration_possible": true
+        },
+        "duration_ms": 120
+      },
+      {
+        "name": "process_downgrade",
+        "status": "ok",
+        "attributes": {"plan_changed": true, "new_plan": "pro", "new_monthly_cost": 29.99},
+        "duration_ms": 250
+      },
+      {
+        "name": "migrate_data",
+        "status": "ok",
+        "attributes": {"analytics_exported": true, "integrations_disabled": true, "data_preserved": false, "warning_sent": true},
+        "duration_ms": 400
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-1180",
+      "customer_tier": "premium",
+      "enterprise_features_used": 5
+    },
+    "result": {
+      "resolution": "downgrade_with_data_loss_warning",
+      "plan_changed": true,
+      "features_lost": ["advanced_analytics", "custom_integrations"],
+      "data_exported": true,
+      "data_fully_preserved": false,
+      "customer_satisfaction": "mixed"
+    }
+  }
+}

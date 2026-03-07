@@ -1,0 +1,58 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Handle multi-issue complaint — resolve simple issues, escalate complex ones",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "complaint", "issues_count": 3, "channel": "email"},
+        "duration_ms": 140
+      },
+      {
+        "name": "classify_issues",
+        "status": "ok",
+        "attributes": {
+          "issues": [
+            {"type": "billing_error", "complexity": "simple"},
+            {"type": "product_defect", "complexity": "complex"},
+            {"type": "shipping_delay", "complexity": "simple"}
+          ]
+        },
+        "duration_ms": 180
+      },
+      {
+        "name": "resolve_billing_error",
+        "status": "ok",
+        "attributes": {"credit_applied": 15.99, "auto_resolved": true},
+        "duration_ms": 250
+      },
+      {
+        "name": "resolve_shipping_delay",
+        "status": "ok",
+        "attributes": {"expedited_reshipping": true, "new_eta": "2026-03-09"},
+        "duration_ms": 200
+      },
+      {
+        "name": "escalate_product_defect",
+        "status": "ok",
+        "attributes": {"escalated_to": "product_quality_team", "ticket_id": "TKT-93011", "priority": "high"},
+        "duration_ms": 150
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-8840",
+      "customer_tier": "premium",
+      "order_id": "ORD-61092",
+      "complaint_severity": "high"
+    },
+    "result": {
+      "resolution": "partial_resolution_with_escalation",
+      "issues_resolved": 2,
+      "issues_escalated": 1,
+      "total_issues": 3,
+      "customer_satisfaction": "mixed"
+    }
+  }
+}

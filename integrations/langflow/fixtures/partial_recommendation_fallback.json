@@ -1,0 +1,52 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Provide product recommendations for customer with sparse purchase history",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "product_recommendation", "channel": "chat"},
+        "duration_ms": 80
+      },
+      {
+        "name": "fetch_purchase_history",
+        "status": "ok",
+        "attributes": {"orders_found": 1, "categories": ["books"], "insufficient_data": true},
+        "duration_ms": 120
+      },
+      {
+        "name": "generate_personalized_recommendations",
+        "status": "ok",
+        "attributes": {"algorithm": "collaborative_filtering", "candidates": 2, "confidence": 0.25, "below_threshold": true},
+        "duration_ms": 300
+      },
+      {
+        "name": "fallback_popular_items",
+        "status": "ok",
+        "attributes": {"fallback_type": "category_bestsellers", "items_returned": 5, "personalization_score": 0.15},
+        "duration_ms": 150
+      },
+      {
+        "name": "compose_response",
+        "status": "ok",
+        "attributes": {"recommendations_count": 5, "personalized": false, "disclaimer_added": true},
+        "duration_ms": 90
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-2201",
+      "customer_tier": "standard",
+      "account_age_days": 14,
+      "new_customer": true
+    },
+    "result": {
+      "resolution": "generic_recommendations_provided",
+      "personalized": false,
+      "fallback_used": true,
+      "recommendations_count": 5,
+      "customer_satisfaction": "neutral"
+    }
+  }
+}

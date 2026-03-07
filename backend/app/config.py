@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     )
 
     # Database
-    database_url: str = "postgresql+asyncpg://mnemosyne:password@localhost:5432/mnemosyne"
+    database_url: str = "postgresql+asyncpg://engram:password@localhost:5432/engram"
     redis_url: str = "redis://localhost:6379/0"
 
     # LLM (for lesson extraction)

@@ -1,0 +1,46 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Process subscription payment method update",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "update_payment_method", "channel": "chat"},
+        "duration_ms": 85
+      },
+      {
+        "name": "lookup_subscription",
+        "status": "ok",
+        "attributes": {"plan": "pro", "monthly_cost": 29.99, "payment_method": "credit_card"},
+        "duration_ms": 70
+      },
+      {
+        "name": "validate_new_payment",
+        "status": "error",
+        "attributes": {
+          "error": "Payment gateway authentication failed: invalid API credentials",
+          "error_category": "auth_failure",
+          "error_signature": "payment_gateway_auth_failure",
+          "gateway": "stripe",
+          "http_status": 401,
+          "error_code": "api_key_expired"
+        },
+        "duration_ms": 380
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-4490",
+      "customer_tier": "premium",
+      "new_payment_type": "debit_card"
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "Payment gateway authentication failed — cannot validate new payment method",
+      "error_category": "auth_failure",
+      "error_signature": "payment_gateway_auth_failure",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

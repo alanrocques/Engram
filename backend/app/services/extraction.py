@@ -123,7 +123,14 @@ def _call_claude(prompt: str) -> dict[str, Any] | None:
             max_tokens=1024,
             messages=[{"role": "user", "content": prompt}],
         )
-        return json.loads(message.content[0].text)
+        text = message.content[0].text.strip()
+        # Strip markdown code fences if present
+        if text.startswith("```"):
+            lines = text.split("\n")
+            # Remove first line (```json) and last line (```)
+            lines = [l for l in lines if not l.strip().startswith("```")]
+            text = "\n".join(lines).strip()
+        return json.loads(text)
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse Claude response as JSON: {e}")
         return None

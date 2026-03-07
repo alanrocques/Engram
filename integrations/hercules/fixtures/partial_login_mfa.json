@@ -1,0 +1,55 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate login with MFA — credentials entered but MFA code entry not handled",
+    "test_target": "https://demo.teststore.com/login",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_login",
+        "status": "ok",
+        "attributes": {"url": "/login", "load_time_ms": 780},
+        "duration_ms": 780
+      },
+      {
+        "name": "fill_credentials",
+        "status": "ok",
+        "attributes": {"username_filled": true, "password_filled": true},
+        "duration_ms": 220
+      },
+      {
+        "name": "click_login",
+        "status": "ok",
+        "attributes": {"selector": "button[type='submit']"},
+        "duration_ms": 70
+      },
+      {
+        "name": "wait_for_dashboard",
+        "status": "error",
+        "attributes": {
+          "expected_url": "/dashboard",
+          "actual_url": "/login/mfa",
+          "error": "UnexpectedPageError: Redirected to MFA challenge page instead of dashboard",
+          "mfa_type": "totp",
+          "mfa_input_visible": true,
+          "partial_success": true
+        },
+        "duration_ms": 2000
+      }
+    ],
+    "selectors_used": ["button[type='submit']"],
+    "assertions": [
+      {"type": "url_equals", "expected": "/dashboard", "actual": "/login/mfa", "passed": false}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "partial_success": true,
+      "total_duration_ms": 3070,
+      "steps_completed": 3,
+      "steps_total": 5,
+      "note": "Credentials were valid and accepted, but the test didn't account for MFA being enabled on this account. Test needs MFA handling or a non-MFA test account."
+    }
+  }
+}

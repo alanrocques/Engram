@@ -1,20 +1,20 @@
-# Mnemosyne SDK
+# Engram SDK
 
-Python SDK for Mnemosyne - Experiential Memory Layer for AI Agents.
+Python SDK for Engram - Experiential Memory Layer for AI Agents.
 
 ## Installation
 
 ```bash
-pip install mnemosyne-sdk
+pip install engram-sdk
 ```
 
 ## Quick Start
 
 ```python
-from mnemosyne import MnemosyneClient
+from engram import EngramClient
 
 # Initialize client
-client = MnemosyneClient(
+client = EngramClient(
     base_url="http://localhost:8000",
     agent_id="my-agent-v1"
 )
@@ -41,10 +41,10 @@ trace = client.ingest_trace(
 ## Async Usage
 
 ```python
-from mnemosyne import AsyncMnemosyneClient
+from engram import AsyncEngramClient
 
 async def main():
-    client = AsyncMnemosyneClient(
+    client = AsyncEngramClient(
         base_url="http://localhost:8000",
         agent_id="my-agent-v1"
     )

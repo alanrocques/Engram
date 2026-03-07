@@ -1,0 +1,51 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Process subscription cancellation with retention offer",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "subscription_cancel", "channel": "chat"},
+        "duration_ms": 90
+      },
+      {
+        "name": "lookup_subscription",
+        "status": "ok",
+        "attributes": {"plan": "pro", "months_active": 8, "monthly_cost": 29.99},
+        "duration_ms": 70
+      },
+      {
+        "name": "present_retention_offer",
+        "status": "ok",
+        "attributes": {"offer_type": "discount", "discount_percent": 30, "duration_months": 3},
+        "duration_ms": 110
+      },
+      {
+        "name": "process_cancellation",
+        "status": "ok",
+        "attributes": {"retention_accepted": false, "cancellation_effective": "2026-04-01", "refund_prorated": false},
+        "duration_ms": 200
+      },
+      {
+        "name": "send_confirmation",
+        "status": "ok",
+        "attributes": {"email_sent": true, "template": "cancellation_confirmation", "survey_sent": true},
+        "duration_ms": 140
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-4419",
+      "customer_tier": "standard",
+      "cancellation_reason": "too_expensive"
+    },
+    "result": {
+      "resolution": "subscription_cancelled",
+      "effective_date": "2026-04-01",
+      "retention_offered": true,
+      "retention_accepted": false,
+      "customer_satisfaction": "neutral"
+    }
+  }
+}

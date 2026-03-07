@@ -1,0 +1,47 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate cookie consent banner interaction using web component",
+    "test_target": "https://demo.teststore.com",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_homepage",
+        "status": "ok",
+        "attributes": {"url": "https://demo.teststore.com", "load_time_ms": 900},
+        "duration_ms": 900
+      },
+      {
+        "name": "wait_for_cookie_banner",
+        "status": "ok",
+        "attributes": {"selector": "cookie-consent-banner", "wait_ms": 1500},
+        "duration_ms": 1500
+      },
+      {
+        "name": "click_accept_cookies",
+        "status": "error",
+        "attributes": {
+          "selector": "#accept-cookies-btn",
+          "strategy": "css_id",
+          "error": "ElementNotFoundError: '#accept-cookies-btn' not found — element is inside shadow DOM of <cookie-consent-banner> web component",
+          "error_category": "shadow_dom",
+          "error_signature": "shadow_dom:web_component:cookie_consent",
+          "host_element": "cookie-consent-banner",
+          "shadow_root_mode": "open"
+        },
+        "duration_ms": 5000
+      }
+    ],
+    "selectors_used": ["cookie-consent-banner", "#accept-cookies-btn"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "ElementNotFoundError: The accept button is inside the shadow DOM of a <cookie-consent-banner> web component. Must use page.locator('cookie-consent-banner').shadow_locator('#accept-cookies-btn') to pierce the shadow boundary.",
+      "total_duration_ms": 7400,
+      "steps_completed": 2,
+      "steps_total": 4
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Process one-time courtesy credit to customer account",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "billing_credit", "channel": "phone"},
+        "duration_ms": 100
+      },
+      {
+        "name": "assess_credit_eligibility",
+        "status": "ok",
+        "attributes": {"eligible": true, "credit_amount": 25.0, "reason": "service_disruption"},
+        "duration_ms": 65
+      },
+      {
+        "name": "apply_billing_credit",
+        "status": "error",
+        "attributes": {
+          "error": "Payment gateway authentication failed: invalid API credentials",
+          "error_category": "auth_failure",
+          "error_signature": "payment_gateway_auth_failure",
+          "gateway": "stripe",
+          "http_status": 401,
+          "error_code": "api_key_expired"
+        },
+        "duration_ms": 410
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-2281",
+      "customer_tier": "standard",
+      "credit_amount": 25.0
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "Payment gateway authentication failed — cannot apply billing credit",
+      "error_category": "auth_failure",
+      "error_signature": "payment_gateway_auth_failure",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

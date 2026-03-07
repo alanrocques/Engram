@@ -1,0 +1,67 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate search with multiple filters — search works but advanced filters partially fail",
+    "test_target": "https://demo.teststore.com/search",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_search",
+        "status": "ok",
+        "attributes": {"url": "/search", "load_time_ms": 750},
+        "duration_ms": 750
+      },
+      {
+        "name": "type_search_query",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='search-input']", "query": "bluetooth speaker"},
+        "duration_ms": 280
+      },
+      {
+        "name": "submit_search",
+        "status": "ok",
+        "attributes": {"method": "enter_key"},
+        "duration_ms": 50
+      },
+      {
+        "name": "wait_for_results",
+        "status": "ok",
+        "attributes": {"results_loaded": true, "count": 24},
+        "duration_ms": 1500
+      },
+      {
+        "name": "apply_price_filter",
+        "status": "ok",
+        "attributes": {"selector": "[data-filter='price']", "range": "25-75"},
+        "duration_ms": 300
+      },
+      {
+        "name": "apply_brand_filter",
+        "status": "error",
+        "attributes": {
+          "selector": "[data-filter='brand'] option[value='JBL']",
+          "error": "ElementNotFoundError: Brand filter dropdown not found in DOM — it renders lazily after price filter results load",
+          "partial_success": true,
+          "price_filter_working": true,
+          "filtered_count": 8
+        },
+        "duration_ms": 3000
+      }
+    ],
+    "selectors_used": ["[data-testid='search-input']", "[data-filter='price']", "[data-filter='brand']"],
+    "assertions": [
+      {"type": "element_count_gte", "selector": ".product-card", "expected": 1, "actual": 8, "passed": true},
+      {"type": "element_visible", "selector": "[data-filter='brand']", "passed": false}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "partial_success": true,
+      "total_duration_ms": 5880,
+      "steps_completed": 5,
+      "steps_total": 7,
+      "note": "Search and price filter worked correctly. Brand filter failed because it lazy-loads after the price filter re-renders results. Need to wait for the brand filter dropdown to appear."
+    }
+  }
+}

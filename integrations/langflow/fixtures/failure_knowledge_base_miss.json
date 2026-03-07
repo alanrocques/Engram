@@ -1,0 +1,46 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Answer customer question about international warranty coverage",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "warranty_inquiry", "sub_type": "international", "channel": "email"},
+        "duration_ms": 110
+      },
+      {
+        "name": "search_knowledge_base",
+        "status": "ok",
+        "attributes": {"query": "international warranty coverage policy", "results_found": 0, "confidence": 0.0},
+        "duration_ms": 250
+      },
+      {
+        "name": "generate_response",
+        "status": "error",
+        "attributes": {
+          "error": "No knowledge base articles found for international warranty — cannot generate accurate response",
+          "error_category": "knowledge_gap",
+          "error_signature": "kb_no_results",
+          "fallback_attempted": true,
+          "fallback_result": "generic_response_insufficient"
+        },
+        "duration_ms": 180
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-9910",
+      "customer_tier": "standard",
+      "customer_country": "Germany",
+      "product_category": "electronics"
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "Knowledge base gap — no articles on international warranty policy",
+      "error_category": "knowledge_gap",
+      "error_signature": "kb_no_results",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

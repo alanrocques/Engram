@@ -1,0 +1,48 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Batch process customer email responses",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "batch_email_response", "batch_size": 15, "channel": "internal"},
+        "duration_ms": 200
+      },
+      {
+        "name": "generate_responses",
+        "status": "ok",
+        "attributes": {"responses_generated": 8},
+        "duration_ms": 4500
+      },
+      {
+        "name": "generate_responses",
+        "status": "error",
+        "attributes": {
+          "error": "LLM API rate limit exceeded: 429 Too Many Requests",
+          "error_category": "rate_limit",
+          "error_signature": "llm_rate_limit_429",
+          "provider": "anthropic",
+          "retry_after_seconds": 60,
+          "requests_completed": 8,
+          "requests_remaining": 7
+        },
+        "duration_ms": 120
+      }
+    ],
+    "context": {
+      "batch_id": "BATCH-0041",
+      "total_emails": 15,
+      "priority": "normal"
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "LLM rate limit hit after processing 8/15 emails — 429 Too Many Requests",
+      "error_category": "rate_limit",
+      "error_signature": "llm_rate_limit_429",
+      "partial_completion": 0.53,
+      "customer_satisfaction": "negative"
+    }
+  }
+}

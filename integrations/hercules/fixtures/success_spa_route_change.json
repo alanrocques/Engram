@@ -1,0 +1,69 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate SPA client-side route transitions and verify content updates without full page reload",
+    "test_target": "https://demo.spa-app.com",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_app",
+        "status": "ok",
+        "attributes": {"url": "https://demo.spa-app.com", "load_time_ms": 1500},
+        "duration_ms": 1500
+      },
+      {
+        "name": "click_about_link",
+        "status": "ok",
+        "attributes": {"selector": "a[href='/about']", "strategy": "css_attribute"},
+        "duration_ms": 80
+      },
+      {
+        "name": "wait_for_route_change",
+        "status": "ok",
+        "attributes": {"wait_strategy": "url_change", "expected_url": "/about", "no_full_reload": true, "wait_ms": 600},
+        "duration_ms": 600
+      },
+      {
+        "name": "assert_about_content",
+        "status": "ok",
+        "attributes": {"assertion": "element_visible", "selector": "[data-testid='about-page']", "passed": true},
+        "duration_ms": 50
+      },
+      {
+        "name": "click_dashboard_link",
+        "status": "ok",
+        "attributes": {"selector": "a[href='/dashboard']", "strategy": "css_attribute"},
+        "duration_ms": 70
+      },
+      {
+        "name": "wait_for_route_change_dashboard",
+        "status": "ok",
+        "attributes": {"wait_strategy": "url_change", "expected_url": "/dashboard", "no_full_reload": true, "wait_ms": 450},
+        "duration_ms": 450
+      },
+      {
+        "name": "assert_dashboard_content",
+        "status": "ok",
+        "attributes": {"assertion": "element_visible", "selector": "[data-testid='dashboard-page']", "passed": true},
+        "duration_ms": 55
+      }
+    ],
+    "selectors_used": ["a[href='/about']", "[data-testid='about-page']", "a[href='/dashboard']", "[data-testid='dashboard-page']"],
+    "assertions": [
+      {"type": "url_equals", "expected": "/about", "passed": true},
+      {"type": "element_visible", "selector": "[data-testid='about-page']", "passed": true},
+      {"type": "url_equals", "expected": "/dashboard", "passed": true},
+      {"type": "element_visible", "selector": "[data-testid='dashboard-page']", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 2805,
+      "routes_tested": 2,
+      "full_reloads": 0,
+      "steps_completed": 7,
+      "steps_total": 7
+    }
+  }
+}

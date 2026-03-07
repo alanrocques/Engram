@@ -1,0 +1,54 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate report generation and download flow in admin panel",
+    "test_target": "https://demo.teststore.com/admin/reports",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_reports",
+        "status": "ok",
+        "attributes": {"url": "/admin/reports", "load_time_ms": 1300},
+        "duration_ms": 1300
+      },
+      {
+        "name": "select_report_type",
+        "status": "ok",
+        "attributes": {"selector": "#report-type", "value": "monthly_sales"},
+        "duration_ms": 150
+      },
+      {
+        "name": "click_generate_report",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='generate-btn']"},
+        "duration_ms": 80
+      },
+      {
+        "name": "wait_for_report_ready",
+        "status": "error",
+        "attributes": {
+          "expected_element": ".report-download-link",
+          "timeout_ms": 15000,
+          "error": "TimeoutError: Element '.report-download-link' did not appear within 15000ms",
+          "error_category": "timeout",
+          "error_signature": "timeout:navigation:wait_for_redirect",
+          "progress_indicator": "visible",
+          "progress_value": "72%",
+          "page_loading": false
+        },
+        "duration_ms": 15000
+      }
+    ],
+    "selectors_used": ["#report-type", "[data-testid='generate-btn']", ".report-download-link"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "TimeoutError: Report generation did not complete within 15000ms. Large monthly reports take 20-30 seconds on staging. Need to increase timeout or poll for completion.",
+      "total_duration_ms": 16530,
+      "steps_completed": 3,
+      "steps_total": 6
+    }
+  }
+}

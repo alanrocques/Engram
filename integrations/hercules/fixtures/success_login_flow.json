@@ -1,0 +1,59 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate login flow test for e-commerce application",
+    "test_target": "https://demo.teststore.com/login",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_login",
+        "status": "ok",
+        "attributes": {"url": "https://demo.teststore.com/login", "load_time_ms": 850},
+        "duration_ms": 850
+      },
+      {
+        "name": "fill_username",
+        "status": "ok",
+        "attributes": {"selector": "#username", "strategy": "css_id", "value": "testuser@example.com"},
+        "duration_ms": 120
+      },
+      {
+        "name": "fill_password",
+        "status": "ok",
+        "attributes": {"selector": "#password", "strategy": "css_id", "value": "***"},
+        "duration_ms": 95
+      },
+      {
+        "name": "click_login_button",
+        "status": "ok",
+        "attributes": {"selector": "button[type='submit']", "strategy": "css_attribute"},
+        "duration_ms": 65
+      },
+      {
+        "name": "wait_for_redirect",
+        "status": "ok",
+        "attributes": {"expected_url": "/dashboard", "actual_url": "/dashboard", "wait_ms": 1200},
+        "duration_ms": 1200
+      },
+      {
+        "name": "assert_logged_in",
+        "status": "ok",
+        "attributes": {"assertion": "element_visible", "selector": ".user-avatar", "passed": true},
+        "duration_ms": 80
+      }
+    ],
+    "selectors_used": ["#username", "#password", "button[type='submit']", ".user-avatar"],
+    "assertions": [
+      {"type": "url_contains", "expected": "/dashboard", "passed": true},
+      {"type": "element_visible", "selector": ".user-avatar", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 2410,
+      "steps_completed": 6,
+      "steps_total": 6
+    }
+  }
+}

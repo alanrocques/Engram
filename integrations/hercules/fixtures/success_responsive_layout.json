@@ -1,0 +1,73 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate responsive layout test verifying mobile hamburger menu and desktop navigation",
+    "test_target": "https://demo.teststore.com",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_homepage",
+        "status": "ok",
+        "attributes": {"url": "https://demo.teststore.com", "load_time_ms": 750},
+        "duration_ms": 750
+      },
+      {
+        "name": "resize_to_mobile",
+        "status": "ok",
+        "attributes": {"viewport_width": 375, "viewport_height": 812, "device": "iPhone_X"},
+        "duration_ms": 200
+      },
+      {
+        "name": "assert_hamburger_visible",
+        "status": "ok",
+        "attributes": {"assertion": "element_visible", "selector": "[data-testid='mobile-menu-btn']", "passed": true},
+        "duration_ms": 60
+      },
+      {
+        "name": "assert_desktop_nav_hidden",
+        "status": "ok",
+        "attributes": {"assertion": "element_not_visible", "selector": "nav.desktop-nav", "passed": true},
+        "duration_ms": 50
+      },
+      {
+        "name": "click_hamburger",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='mobile-menu-btn']"},
+        "duration_ms": 75
+      },
+      {
+        "name": "assert_mobile_menu_open",
+        "status": "ok",
+        "attributes": {"assertion": "element_visible", "selector": ".mobile-menu-drawer", "passed": true},
+        "duration_ms": 400
+      },
+      {
+        "name": "resize_to_desktop",
+        "status": "ok",
+        "attributes": {"viewport_width": 1440, "viewport_height": 900},
+        "duration_ms": 180
+      },
+      {
+        "name": "assert_desktop_nav_visible",
+        "status": "ok",
+        "attributes": {"assertion": "element_visible", "selector": "nav.desktop-nav", "passed": true},
+        "duration_ms": 55
+      }
+    ],
+    "selectors_used": ["[data-testid='mobile-menu-btn']", "nav.desktop-nav", ".mobile-menu-drawer"],
+    "assertions": [
+      {"type": "element_visible", "selector": "[data-testid='mobile-menu-btn']", "viewport": "mobile", "passed": true},
+      {"type": "element_not_visible", "selector": "nav.desktop-nav", "viewport": "mobile", "passed": true},
+      {"type": "element_visible", "selector": "nav.desktop-nav", "viewport": "desktop", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 1770,
+      "viewports_tested": ["375x812", "1440x900"],
+      "steps_completed": 8,
+      "steps_total": 8
+    }
+  }
+}

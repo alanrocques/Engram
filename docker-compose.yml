@@ -1,24 +1,24 @@
 services:
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: mnemosyne-postgres
+    container_name: engram-postgres
     environment:
-      POSTGRES_USER: mnemosyne
+      POSTGRES_USER: engram
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: mnemosyne
+      POSTGRES_DB: engram
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mnemosyne"]
+      test: ["CMD-SHELL", "pg_isready -U engram"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: mnemosyne-redis
+    container_name: engram-redis
     ports:
       - "6379:6379"
     volumes:
@@ -33,11 +33,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: mnemosyne-api
+    container_name: engram-api
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://mnemosyne:password@postgres:5432/mnemosyne
+      DATABASE_URL: postgresql+asyncpg://engram:password@postgres:5432/engram
       REDIS_URL: redis://redis:6379/0
       API_HOST: "0.0.0.0"
       API_PORT: "8000"

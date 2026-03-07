@@ -1,0 +1,44 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Provide personalized product recommendations based on purchase history",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "product_recommendation", "channel": "chat"},
+        "duration_ms": 85
+      },
+      {
+        "name": "fetch_purchase_history",
+        "status": "ok",
+        "attributes": {"orders_found": 12, "categories": ["electronics", "accessories"]},
+        "duration_ms": 150
+      },
+      {
+        "name": "generate_recommendations",
+        "status": "ok",
+        "attributes": {"algorithm": "collaborative_filtering", "candidates": 25, "filtered_to": 5},
+        "duration_ms": 340
+      },
+      {
+        "name": "compose_response",
+        "status": "ok",
+        "attributes": {"recommendations_count": 5, "personalization_score": 0.87},
+        "duration_ms": 120
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-8831",
+      "customer_tier": "premium",
+      "browsing_session": true
+    },
+    "result": {
+      "resolution": "recommendations_provided",
+      "recommendations_count": 5,
+      "click_through": true,
+      "customer_satisfaction": "positive"
+    }
+  }
+}

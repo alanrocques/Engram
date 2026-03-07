@@ -1,0 +1,47 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate Google OAuth login flow with popup window",
+    "test_target": "https://demo.teststore.com/login",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_login",
+        "status": "ok",
+        "attributes": {"url": "/login", "load_time_ms": 820},
+        "duration_ms": 820
+      },
+      {
+        "name": "click_google_login",
+        "status": "ok",
+        "attributes": {"selector": "[data-provider='google']", "strategy": "data_attribute"},
+        "duration_ms": 90
+      },
+      {
+        "name": "wait_for_popup",
+        "status": "error",
+        "attributes": {
+          "expected": "new_window",
+          "timeout_ms": 5000,
+          "error": "PopupBlockedError: Browser blocked the OAuth popup window",
+          "error_category": "popup_blocked",
+          "error_signature": "popup_blocked:oauth:google",
+          "browser_popup_setting": "block",
+          "windows_count": 1
+        },
+        "duration_ms": 5000
+      }
+    ],
+    "selectors_used": ["[data-provider='google']"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "PopupBlockedError: Chromium blocked the Google OAuth popup. Need to configure browser context with popup permissions or use --disable-popup-blocking flag.",
+      "total_duration_ms": 5910,
+      "steps_completed": 2,
+      "steps_total": 6
+    }
+  }
+}

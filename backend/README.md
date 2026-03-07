@@ -1,4 +1,4 @@
-# Mnemosyne Backend
+# Engram Backend
 
 Experiential memory layer for AI agents.
 

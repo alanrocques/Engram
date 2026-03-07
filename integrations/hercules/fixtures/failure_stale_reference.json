@@ -1,0 +1,48 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate infinite scroll product listing and interact with loaded items",
+    "test_target": "https://demo.teststore.com/products/trending",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_trending",
+        "status": "ok",
+        "attributes": {"url": "/products/trending", "load_time_ms": 1100},
+        "duration_ms": 1100
+      },
+      {
+        "name": "scroll_to_load_more",
+        "status": "ok",
+        "attributes": {"scroll_amount": 3000, "new_items_loaded": 20},
+        "duration_ms": 2500
+      },
+      {
+        "name": "click_first_product",
+        "status": "error",
+        "attributes": {
+          "selector": ".product-card:first-child",
+          "strategy": "css_pseudo",
+          "error": "StaleElementReferenceError: Element '.product-card:first-child' is no longer attached to the DOM — virtual scroll recycled the element",
+          "error_category": "stale_element",
+          "error_signature": "stale_element:virtual_scroll:recycled_node",
+          "scroll_position": 3000,
+          "visible_range": "items 21-40",
+          "attempted_item": "item 1"
+        },
+        "duration_ms": 100
+      }
+    ],
+    "selectors_used": [".product-card:first-child"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "StaleElementReferenceError: After scrolling, the first product card DOM node was recycled by the virtual scroll implementation. Items outside the viewport are removed from DOM. Must re-query elements after scroll.",
+      "total_duration_ms": 3700,
+      "steps_completed": 2,
+      "steps_total": 4
+    }
+  }
+}

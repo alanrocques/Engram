@@ -1,0 +1,58 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Respond to angry customer complaint about late delivery",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "complaint", "sub_type": "late_delivery", "channel": "chat"},
+        "duration_ms": 95
+      },
+      {
+        "name": "analyze_sentiment",
+        "status": "ok",
+        "attributes": {"detected_sentiment": "neutral", "confidence": 0.52, "actual_sentiment": "angry"},
+        "duration_ms": 130
+      },
+      {
+        "name": "compose_response",
+        "status": "ok",
+        "attributes": {"tone": "casual", "empathy_level": "low", "template": "standard_delay_notice"},
+        "duration_ms": 160
+      },
+      {
+        "name": "deliver_response",
+        "status": "ok",
+        "attributes": {"delivered": true},
+        "duration_ms": 40
+      },
+      {
+        "name": "collect_feedback",
+        "status": "error",
+        "attributes": {
+          "error": "Customer escalated immediately — response tone inappropriate for angry customer",
+          "error_category": "response_quality",
+          "error_signature": "sentiment_misclassification",
+          "customer_feedback": "Your bot is dismissive and unhelpful",
+          "escalation_triggered": true
+        },
+        "duration_ms": 5
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-6678",
+      "customer_tier": "premium",
+      "order_id": "ORD-55102",
+      "days_late": 5
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "Sentiment misclassification led to inappropriate response tone — customer escalated",
+      "error_category": "response_quality",
+      "error_signature": "sentiment_misclassification",
+      "customer_satisfaction": "very_negative"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Create support ticket for customer issue",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "create_ticket", "channel": "email"},
+        "duration_ms": 90
+      },
+      {
+        "name": "check_existing_tickets",
+        "status": "ok",
+        "attributes": {"existing_tickets_found": 0, "search_query": "shipping damage ORD-43218"},
+        "duration_ms": 140
+      },
+      {
+        "name": "create_ticket",
+        "status": "ok",
+        "attributes": {"ticket_id": "TKT-88901", "priority": "medium"},
+        "duration_ms": 200
+      },
+      {
+        "name": "post_creation_check",
+        "status": "error",
+        "attributes": {
+          "error": "Duplicate ticket detected post-creation — TKT-88901 duplicates TKT-88844",
+          "error_category": "data_integrity",
+          "error_signature": "duplicate_ticket_created",
+          "original_ticket": "TKT-88844",
+          "duplicate_ticket": "TKT-88901",
+          "dedup_missed": true
+        },
+        "duration_ms": 110
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-3392",
+      "customer_tier": "standard",
+      "order_id": "ORD-43218",
+      "issue_type": "shipping_damage"
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "Duplicate ticket created — dedup check failed to match existing ticket TKT-88844",
+      "error_category": "data_integrity",
+      "error_signature": "duplicate_ticket_created",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

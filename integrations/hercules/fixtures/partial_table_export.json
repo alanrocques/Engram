@@ -1,0 +1,57 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate data table export to CSV — table loads and export triggers but file download not verified",
+    "test_target": "https://demo.teststore.com/admin/orders",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_orders",
+        "status": "ok",
+        "attributes": {"url": "/admin/orders", "load_time_ms": 1200},
+        "duration_ms": 1200
+      },
+      {
+        "name": "wait_for_table",
+        "status": "ok",
+        "attributes": {"selector": "table.orders-table", "rows_loaded": 25},
+        "duration_ms": 900
+      },
+      {
+        "name": "click_export_csv",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='export-csv-btn']"},
+        "duration_ms": 100
+      },
+      {
+        "name": "wait_for_download",
+        "status": "error",
+        "attributes": {
+          "expected": "file_download",
+          "timeout_ms": 5000,
+          "error": "DownloadVerificationError: Download event was triggered but file content could not be verified",
+          "partial_success": true,
+          "download_started": true,
+          "suggested_filename": "orders_export_2025-03-07.csv",
+          "download_path_not_configured": true
+        },
+        "duration_ms": 5000
+      }
+    ],
+    "selectors_used": ["table.orders-table", "[data-testid='export-csv-btn']"],
+    "assertions": [
+      {"type": "download_completed", "passed": false},
+      {"type": "element_visible", "selector": "[data-testid='export-csv-btn']", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "partial_success": true,
+      "total_duration_ms": 7200,
+      "steps_completed": 3,
+      "steps_total": 5,
+      "note": "Export button clicked and download initiated, but browser download path wasn't configured for headless mode. Need to set browser.new_context(accept_downloads=True) and specify download_path."
+    }
+  }
+}

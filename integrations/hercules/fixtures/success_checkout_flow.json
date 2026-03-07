@@ -1,0 +1,72 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate end-to-end checkout flow with credit card payment",
+    "test_target": "https://demo.teststore.com/checkout",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_cart",
+        "status": "ok",
+        "attributes": {"url": "/cart", "items_in_cart": 2},
+        "duration_ms": 620
+      },
+      {
+        "name": "click_checkout",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='checkout-btn']", "strategy": "data_testid"},
+        "duration_ms": 110
+      },
+      {
+        "name": "fill_shipping_address",
+        "status": "ok",
+        "attributes": {"fields_filled": 6, "form_selector": "#shipping-form"},
+        "duration_ms": 850
+      },
+      {
+        "name": "select_shipping_method",
+        "status": "ok",
+        "attributes": {"selector": "#shipping-standard", "method": "standard"},
+        "duration_ms": 95
+      },
+      {
+        "name": "fill_payment_info",
+        "status": "ok",
+        "attributes": {"payment_type": "credit_card", "iframe_switch": true},
+        "duration_ms": 1100
+      },
+      {
+        "name": "click_place_order",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='place-order']", "strategy": "data_testid"},
+        "duration_ms": 150
+      },
+      {
+        "name": "wait_for_confirmation",
+        "status": "ok",
+        "attributes": {"expected_element": ".order-confirmation", "wait_ms": 3200},
+        "duration_ms": 3200
+      },
+      {
+        "name": "assert_order_placed",
+        "status": "ok",
+        "attributes": {"assertion": "text_contains", "expected": "Order Confirmed", "passed": true},
+        "duration_ms": 60
+      }
+    ],
+    "selectors_used": ["[data-testid='checkout-btn']", "#shipping-form", "#shipping-standard", "[data-testid='place-order']", ".order-confirmation"],
+    "assertions": [
+      {"type": "text_contains", "expected": "Order Confirmed", "passed": true},
+      {"type": "element_visible", "selector": ".order-number", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 6185,
+      "order_id": "ORD-TEST-9921",
+      "steps_completed": 8,
+      "steps_total": 8
+    }
+  }
+}

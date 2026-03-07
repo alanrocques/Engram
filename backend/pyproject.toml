@@ -1,5 +1,5 @@
 [project]
-name = "mnemosyne"
+name = "engram"
 version = "0.1.0"
 description = "Experiential memory layer for AI agents"
 readme = "README.md"

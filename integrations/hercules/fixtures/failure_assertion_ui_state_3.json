@@ -1,0 +1,57 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate form validation error message display on invalid input",
+    "test_target": "https://demo.teststore.com/register",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_register",
+        "status": "ok",
+        "attributes": {"url": "/register", "load_time_ms": 750},
+        "duration_ms": 750
+      },
+      {
+        "name": "fill_invalid_email",
+        "status": "ok",
+        "attributes": {"selector": "#email", "value": "not-an-email"},
+        "duration_ms": 100
+      },
+      {
+        "name": "click_submit",
+        "status": "ok",
+        "attributes": {"selector": "button[type='submit']"},
+        "duration_ms": 70
+      },
+      {
+        "name": "assert_error_message",
+        "status": "error",
+        "attributes": {
+          "assertion": "element_visible",
+          "selector": ".error-message",
+          "expected": "visible",
+          "actual": "not_found",
+          "error": "AssertionError: Expected '.error-message' to be visible but element was not found",
+          "error_category": "assertion_failed",
+          "error_signature": "assertion_failed:element_visible:error_message_missing",
+          "passed": false,
+          "note": "Validation errors are rendered as aria-describedby on the input, not as a separate .error-message element"
+        },
+        "duration_ms": 2000
+      }
+    ],
+    "selectors_used": ["#email", "button[type='submit']", ".error-message"],
+    "assertions": [
+      {"type": "element_visible", "selector": ".error-message", "passed": false}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "AssertionError: Expected '.error-message' element but validation errors are rendered inline via aria-describedby attribute on the input field, not as a separate element.",
+      "total_duration_ms": 2920,
+      "steps_completed": 3,
+      "steps_total": 5
+    }
+  }
+}

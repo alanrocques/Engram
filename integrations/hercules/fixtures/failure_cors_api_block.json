@@ -1,0 +1,47 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate address autocomplete feature using Google Maps API",
+    "test_target": "https://demo.teststore.com/checkout/shipping",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_shipping",
+        "status": "ok",
+        "attributes": {"url": "/checkout/shipping", "load_time_ms": 980},
+        "duration_ms": 980
+      },
+      {
+        "name": "type_address",
+        "status": "ok",
+        "attributes": {"selector": "#address-input", "value": "123 Main St"},
+        "duration_ms": 350
+      },
+      {
+        "name": "wait_for_autocomplete_dropdown",
+        "status": "error",
+        "attributes": {
+          "selector": ".pac-container",
+          "timeout_ms": 5000,
+          "error": "TimeoutError: Autocomplete dropdown did not appear. CORS error detected in console: 'Access to XMLHttpRequest from origin blocked by CORS policy'",
+          "error_category": "cors_error",
+          "error_signature": "cors_error:google_maps_api:autocomplete",
+          "console_errors": ["Access to XMLHttpRequest at 'https://maps.googleapis.com/maps/api/place/autocomplete' from origin 'https://demo.teststore.com' has been blocked by CORS policy"],
+          "api_key_present": false
+        },
+        "duration_ms": 5000
+      }
+    ],
+    "selectors_used": ["#address-input", ".pac-container"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "CORS error blocked Google Maps autocomplete API call. The test environment doesn't have a valid Maps API key configured, causing the autocomplete dropdown to never appear.",
+      "total_duration_ms": 6330,
+      "steps_completed": 2,
+      "steps_total": 5
+    }
+  }
+}

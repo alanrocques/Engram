@@ -1,0 +1,47 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate profile photo upload via file dialog",
+    "test_target": "https://demo.teststore.com/settings/profile",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_profile",
+        "status": "ok",
+        "attributes": {"url": "/settings/profile", "load_time_ms": 870},
+        "duration_ms": 870
+      },
+      {
+        "name": "click_upload_photo",
+        "status": "ok",
+        "attributes": {"selector": ".upload-photo-btn", "strategy": "css_class"},
+        "duration_ms": 85
+      },
+      {
+        "name": "handle_file_dialog",
+        "status": "error",
+        "attributes": {
+          "error": "FileDialogError: Native OS file dialog opened but cannot be automated with standard selectors",
+          "error_category": "native_dialog",
+          "error_signature": "native_dialog:file_upload:os_dialog",
+          "dialog_type": "file_open",
+          "input_type": "file",
+          "hidden_input_present": true,
+          "hidden_input_selector": "input[type='file'][style*='display: none']"
+        },
+        "duration_ms": 3000
+      }
+    ],
+    "selectors_used": [".upload-photo-btn"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "FileDialogError: Clicking the upload button triggered a native OS file dialog which can't be automated. Should use input_file.set_input_files() on the hidden <input type='file'> element instead of clicking the visual button.",
+      "total_duration_ms": 3955,
+      "steps_completed": 2,
+      "steps_total": 5
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate product search and verify results display correctly",
+    "test_target": "https://demo.teststore.com/search",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_homepage",
+        "status": "ok",
+        "attributes": {"url": "https://demo.teststore.com", "load_time_ms": 720},
+        "duration_ms": 720
+      },
+      {
+        "name": "click_search_bar",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='search-input']", "strategy": "data_testid"},
+        "duration_ms": 85
+      },
+      {
+        "name": "type_search_query",
+        "status": "ok",
+        "attributes": {"query": "wireless headphones", "selector": "[data-testid='search-input']"},
+        "duration_ms": 340
+      },
+      {
+        "name": "submit_search",
+        "status": "ok",
+        "attributes": {"method": "enter_key"},
+        "duration_ms": 50
+      },
+      {
+        "name": "wait_for_results",
+        "status": "ok",
+        "attributes": {"selector": ".search-results", "wait_ms": 1500},
+        "duration_ms": 1500
+      },
+      {
+        "name": "assert_results_displayed",
+        "status": "ok",
+        "attributes": {"assertion": "element_count_gte", "selector": ".product-card", "expected": 1, "actual": 12, "passed": true},
+        "duration_ms": 90
+      }
+    ],
+    "selectors_used": ["[data-testid='search-input']", ".search-results", ".product-card"],
+    "assertions": [
+      {"type": "element_count_gte", "selector": ".product-card", "expected": 1, "actual": 12, "passed": true},
+      {"type": "url_contains", "expected": "q=wireless+headphones", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 2785,
+      "results_count": 12,
+      "steps_completed": 6,
+      "steps_total": 6
+    }
+  }
+}

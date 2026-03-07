@@ -1,0 +1,71 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate contact form submission and verify success message",
+    "test_target": "https://demo.teststore.com/contact",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_contact",
+        "status": "ok",
+        "attributes": {"url": "/contact", "load_time_ms": 650},
+        "duration_ms": 650
+      },
+      {
+        "name": "fill_name_field",
+        "status": "ok",
+        "attributes": {"selector": "#contact-name", "value": "Test User"},
+        "duration_ms": 110
+      },
+      {
+        "name": "fill_email_field",
+        "status": "ok",
+        "attributes": {"selector": "#contact-email", "value": "test@example.com"},
+        "duration_ms": 95
+      },
+      {
+        "name": "select_category",
+        "status": "ok",
+        "attributes": {"selector": "#contact-category", "strategy": "select_dropdown", "value": "general_inquiry"},
+        "duration_ms": 180
+      },
+      {
+        "name": "fill_message_field",
+        "status": "ok",
+        "attributes": {"selector": "#contact-message", "value": "This is a test inquiry message."},
+        "duration_ms": 250
+      },
+      {
+        "name": "click_submit",
+        "status": "ok",
+        "attributes": {"selector": "button[type='submit']", "strategy": "css_attribute"},
+        "duration_ms": 75
+      },
+      {
+        "name": "wait_for_confirmation",
+        "status": "ok",
+        "attributes": {"selector": ".success-message", "wait_ms": 800},
+        "duration_ms": 800
+      },
+      {
+        "name": "assert_success",
+        "status": "ok",
+        "attributes": {"assertion": "text_contains", "expected": "Thank you", "passed": true},
+        "duration_ms": 45
+      }
+    ],
+    "selectors_used": ["#contact-name", "#contact-email", "#contact-category", "#contact-message", "button[type='submit']", ".success-message"],
+    "assertions": [
+      {"type": "text_contains", "expected": "Thank you", "passed": true},
+      {"type": "element_not_visible", "selector": "#contact-form", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 2205,
+      "steps_completed": 8,
+      "steps_total": 8
+    }
+  }
+}

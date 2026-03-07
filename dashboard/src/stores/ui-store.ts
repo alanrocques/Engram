@@ -15,6 +15,6 @@ export const useUiStore = create<UiState>()(
       toggleSidebar: () =>
         set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
     }),
-    { name: "mnemosyne-ui" },
+    { name: "engram-ui" },
   ),
 );

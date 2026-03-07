@@ -1,0 +1,68 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate full checkout flow — shipping and payment completed but order confirmation not verified",
+    "test_target": "https://demo.teststore.com/checkout",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_checkout",
+        "status": "ok",
+        "attributes": {"url": "/checkout", "load_time_ms": 1100},
+        "duration_ms": 1100
+      },
+      {
+        "name": "fill_shipping_form",
+        "status": "ok",
+        "attributes": {"fields_filled": 6, "form_valid": true},
+        "duration_ms": 900
+      },
+      {
+        "name": "select_shipping_method",
+        "status": "ok",
+        "attributes": {"selector": "#shipping-express", "method": "express"},
+        "duration_ms": 120
+      },
+      {
+        "name": "fill_payment",
+        "status": "ok",
+        "attributes": {"iframe_switch": true, "card_filled": true},
+        "duration_ms": 1400
+      },
+      {
+        "name": "click_place_order",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='place-order']"},
+        "duration_ms": 130
+      },
+      {
+        "name": "verify_order_confirmation",
+        "status": "error",
+        "attributes": {
+          "selector": ".order-number",
+          "timeout_ms": 8000,
+          "error": "TimeoutError: Order number element not found within timeout, but page title changed to 'Order Placed'",
+          "partial_success": true,
+          "page_title": "Order Placed - TestStore",
+          "order_likely_created": true
+        },
+        "duration_ms": 8000
+      }
+    ],
+    "selectors_used": ["#shipping-express", "[data-testid='place-order']", ".order-number"],
+    "assertions": [
+      {"type": "element_visible", "selector": ".order-number", "passed": false},
+      {"type": "page_title_contains", "expected": "Order Placed", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "partial_success": true,
+      "total_duration_ms": 11650,
+      "steps_completed": 5,
+      "steps_total": 6,
+      "note": "Order was placed successfully (page title confirms) but the order number element uses a different selector than expected"
+    }
+  }
+}

@@ -1,8 +1,8 @@
-# CLAUDE.md — Mnemosyne: Experiential Memory Layer for AI Agents
+# CLAUDE.md — Engram: Experiential Memory Layer for AI Agents
 
 ## WHY — Project Purpose
 
-Mnemosyne is an **experiential memory service** that enables AI agents to learn from their own execution history. Unlike Mem0 (user/conversation memory) or Letta (stateful context), Mnemosyne captures **procedural lessons** from agent successes and failures — "what worked, what didn't, and what to do differently."
+Engram is an **experiential memory service** that enables AI agents to learn from their own execution history. Unlike Mem0 (user/conversation memory) or Letta (stateful context), Engram captures **procedural lessons** from agent successes and failures — "what worked, what didn't, and what to do differently."
 
 The core insight: current agent memory tools store *facts and conversations*, not *how to handle errors*. Research (PRAXIS, ReasoningBank, SkillWeaver) shows 10–50% success rate improvements when agents can recall past execution experience. No startup or tool offers this as a first-class product today.
 
@@ -20,7 +20,7 @@ The core insight: current agent memory tools store *facts and conversations*, no
 │  (LangGraph · CrewAI · OpenAI Agents SDK · Custom)           │
 │         ↕ OpenTelemetry / SDK instrumentation                │
 ├──────────────────────────────────────────────────────────────┤
-│                    Mnemosyne Service                          │
+│                    Engram Service                          │
 │                                                              │
 │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐ │
 │  │ Trace       │  │ Lesson       │  │ Retrieval &         │ │
@@ -90,7 +90,7 @@ class Lesson:
 ### Project Structure
 
 ```
-mnemosyne/
+engram/
 ├── CLAUDE.md                    # ← this file
 ├── docker-compose.yml
 ├── .env.example
@@ -146,9 +146,9 @@ mnemosyne/
 │   └── tests/
 ├── sdk/
 │   └── python/
-│       ├── mnemosyne/
+│       ├── engram/
 │       │   ├── __init__.py
-│       │   ├── client.py        # MnemosyneClient — main SDK class
+│       │   ├── client.py        # EngramClient — main SDK class
 │       │   ├── middleware.py     # LangChain/LangGraph middleware hooks
 │       │   └── otel.py          # OTel exporter for auto-instrumentation
 │       └── pyproject.toml
@@ -222,9 +222,9 @@ uv run celery -A app.workers.tasks worker --loglevel=info
 
 5. **SDK-first integration** — the Python SDK wraps common patterns:
    ```python
-   from mnemosyne import MnemosyneClient
+   from engram import EngramClient
 
-   client = MnemosyneClient(api_key="...", agent_id="support-bot-v2")
+   client = EngramClient(api_key="...", agent_id="support-bot-v2")
 
    # At agent decision time — retrieve relevant lessons
    lessons = client.retrieve(context="user asking about refund policy", top_k=5)
@@ -282,7 +282,7 @@ uv run celery -A app.workers.tasks worker --loglevel=info
 
 ```env
 # Database
-DATABASE_URL=postgresql+asyncpg://mnemosyne:password@localhost:5432/mnemosyne
+DATABASE_URL=postgresql+asyncpg://engram:password@localhost:5432/engram
 REDIS_URL=redis://localhost:6379/0
 
 # LLM (for lesson extraction)
@@ -318,11 +318,11 @@ MIN_CONFIDENCE_THRESHOLD=0.3
 - **Don't over-engineer early:** Start with simple cosine similarity retrieval. Add BM25 hybrid, reranking, and conflict detection in Phase 2.
 
 
-# CLAUDE.md — Mnemosyne Phase 3: Management Dashboard
+# CLAUDE.md — Engram Phase 3: Management Dashboard
 
 ## WHAT THIS IS
 
-Mnemosyne is an experiential memory service for AI agents. The backend (FastAPI + PostgreSQL + pgvector) is complete through Phase 2.5. This prompt builds the **management dashboard** — a React SPA that lets teams monitor, explore, and curate their agent memory pool.
+Engram is an experiential memory service for AI agents. The backend (FastAPI + PostgreSQL + pgvector) is complete through Phase 2.5. This prompt builds the **management dashboard** — a React SPA that lets teams monitor, explore, and curate their agent memory pool.
 
 **This is an enterprise developer tool, not a consumer product.** The audience is ML engineers and platform teams running production AI agents. They care about data density, fast navigation, and actionable insights — not flashy animations. Think Linear or Datadog, not Dribbble.
 
@@ -349,7 +349,7 @@ Mnemosyne is an experiential memory service for AI agents. The backend (FastAPI 
 
 ## PROJECT STRUCTURE
 
-The dashboard lives in a `dashboard/` directory at the project root, **sibling to the existing `mnemosyne/` backend**.
+The dashboard lives in a `dashboard/` directory at the project root, **sibling to the existing `engram/` backend**.
 
 ```
 dashboard/

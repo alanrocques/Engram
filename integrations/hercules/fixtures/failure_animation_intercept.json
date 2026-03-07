@@ -1,0 +1,48 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate modal dialog interaction during entry animation",
+    "test_target": "https://demo.teststore.com/products/premium-headphones",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_product",
+        "status": "ok",
+        "attributes": {"url": "/products/premium-headphones", "load_time_ms": 950},
+        "duration_ms": 950
+      },
+      {
+        "name": "click_quick_view",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='quick-view-btn']", "strategy": "data_testid"},
+        "duration_ms": 75
+      },
+      {
+        "name": "click_add_to_cart_in_modal",
+        "status": "error",
+        "attributes": {
+          "selector": ".modal [data-action='add-to-cart']",
+          "strategy": "css_descendant",
+          "error": "ElementClickInterceptedError: Element is not clickable at point (512, 340) — another element <div class='modal-overlay'> would receive the click",
+          "error_category": "click_intercepted",
+          "error_signature": "click_intercepted:animation:modal_overlay",
+          "intercepting_element": "div.modal-overlay",
+          "animation_duration_ms": 300,
+          "animation_state": "running"
+        },
+        "duration_ms": 100
+      }
+    ],
+    "selectors_used": ["[data-testid='quick-view-btn']", ".modal [data-action='add-to-cart']"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "ElementClickInterceptedError: Modal overlay animation was still running when click was attempted. The modal has a 300ms fade-in animation and the overlay intercepts clicks during transition. Need to wait for animation to complete.",
+      "total_duration_ms": 1125,
+      "steps_completed": 2,
+      "steps_total": 5
+    }
+  }
+}

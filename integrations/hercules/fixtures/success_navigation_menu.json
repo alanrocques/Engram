@@ -1,0 +1,72 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate main navigation menu test across all top-level categories",
+    "test_target": "https://demo.teststore.com",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_homepage",
+        "status": "ok",
+        "attributes": {"url": "https://demo.teststore.com", "load_time_ms": 680},
+        "duration_ms": 680
+      },
+      {
+        "name": "hover_electronics_menu",
+        "status": "ok",
+        "attributes": {"selector": "nav a[href='/electronics']", "strategy": "css_attribute", "submenu_visible": true},
+        "duration_ms": 320
+      },
+      {
+        "name": "click_electronics",
+        "status": "ok",
+        "attributes": {"selector": "nav a[href='/electronics']", "navigated_to": "/electronics"},
+        "duration_ms": 950
+      },
+      {
+        "name": "assert_electronics_page",
+        "status": "ok",
+        "attributes": {"assertion": "url_equals", "expected": "/electronics", "passed": true},
+        "duration_ms": 40
+      },
+      {
+        "name": "navigate_back",
+        "status": "ok",
+        "attributes": {"method": "browser_back"},
+        "duration_ms": 500
+      },
+      {
+        "name": "hover_clothing_menu",
+        "status": "ok",
+        "attributes": {"selector": "nav a[href='/clothing']", "strategy": "css_attribute", "submenu_visible": true},
+        "duration_ms": 280
+      },
+      {
+        "name": "click_clothing",
+        "status": "ok",
+        "attributes": {"selector": "nav a[href='/clothing']", "navigated_to": "/clothing"},
+        "duration_ms": 870
+      },
+      {
+        "name": "assert_clothing_page",
+        "status": "ok",
+        "attributes": {"assertion": "url_equals", "expected": "/clothing", "passed": true},
+        "duration_ms": 35
+      }
+    ],
+    "selectors_used": ["nav a[href='/electronics']", "nav a[href='/clothing']"],
+    "assertions": [
+      {"type": "url_equals", "expected": "/electronics", "passed": true},
+      {"type": "url_equals", "expected": "/clothing", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 3675,
+      "categories_tested": 2,
+      "steps_completed": 8,
+      "steps_total": 8
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate checkout redirect after payment processing",
+    "test_target": "https://demo.teststore.com/checkout/payment",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_payment",
+        "status": "ok",
+        "attributes": {"url": "/checkout/payment", "load_time_ms": 1200},
+        "duration_ms": 1200
+      },
+      {
+        "name": "fill_card_details",
+        "status": "ok",
+        "attributes": {"iframe_switch": true, "fields_filled": 4},
+        "duration_ms": 1800
+      },
+      {
+        "name": "click_pay_now",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='pay-now-btn']"},
+        "duration_ms": 120
+      },
+      {
+        "name": "wait_for_redirect_to_confirmation",
+        "status": "error",
+        "attributes": {
+          "expected_url": "/checkout/confirmation",
+          "timeout_ms": 10000,
+          "error": "TimeoutError: Navigation to '/checkout/confirmation' did not complete within 10000ms",
+          "error_category": "timeout",
+          "error_signature": "timeout:navigation:wait_for_redirect",
+          "current_url": "/checkout/payment",
+          "network_pending": 3,
+          "page_loading": true
+        },
+        "duration_ms": 10000
+      }
+    ],
+    "selectors_used": ["[data-testid='pay-now-btn']"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "TimeoutError: Navigation to '/checkout/confirmation' did not complete within 10000ms. Payment gateway takes 12-15 seconds to process on staging, exceeding the default 10s timeout.",
+      "total_duration_ms": 13120,
+      "steps_completed": 3,
+      "steps_total": 6
+    }
+  }
+}

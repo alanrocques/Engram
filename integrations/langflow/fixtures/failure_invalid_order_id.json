@@ -1,0 +1,39 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Process refund for order with invalid format",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "refund", "raw_order_id": "88412", "channel": "chat"},
+        "duration_ms": 100
+      },
+      {
+        "name": "validate_order_id",
+        "status": "error",
+        "attributes": {
+          "error": "Invalid order ID format: expected ORD-XXXXX, got '88412'",
+          "error_category": "validation_error",
+          "error_signature": "invalid_order_id_format",
+          "input_value": "88412",
+          "expected_format": "ORD-XXXXX"
+        },
+        "duration_ms": 15
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-1192",
+      "customer_tier": "standard",
+      "raw_input": "I want a refund for 88412"
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "Could not process request — invalid order ID format provided by customer",
+      "error_category": "validation_error",
+      "error_signature": "invalid_order_id_format",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

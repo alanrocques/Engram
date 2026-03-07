@@ -1,0 +1,41 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Fetch customer order history from CRM for complaint resolution",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "complaint", "sub_type": "repeated_issue", "channel": "phone"},
+        "duration_ms": 115
+      },
+      {
+        "name": "fetch_order_history_crm",
+        "status": "error",
+        "attributes": {
+          "error": "CRM API timeout after 30000ms",
+          "error_category": "external_service_timeout",
+          "error_signature": "crm_api_timeout",
+          "endpoint": "https://crm.internal/api/v2/customers/CUST-5501/orders",
+          "timeout_ms": 30000,
+          "retry_count": 3
+        },
+        "duration_ms": 92100
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-5501",
+      "customer_tier": "premium",
+      "crm_region": "us-east-1",
+      "complaint_severity": "high"
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "CRM API timeout after 30000ms — could not fetch order history for complaint",
+      "error_category": "external_service_timeout",
+      "error_signature": "crm_api_timeout",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

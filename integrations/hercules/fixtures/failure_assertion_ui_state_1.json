@@ -1,0 +1,57 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate cart item count badge update after adding product",
+    "test_target": "https://demo.teststore.com/products/laptop-stand",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_product",
+        "status": "ok",
+        "attributes": {"url": "/products/laptop-stand", "load_time_ms": 920},
+        "duration_ms": 920
+      },
+      {
+        "name": "click_add_to_cart",
+        "status": "ok",
+        "attributes": {"selector": "[data-action='add-to-cart']", "strategy": "data_attribute"},
+        "duration_ms": 110
+      },
+      {
+        "name": "wait_for_cart_update",
+        "status": "ok",
+        "attributes": {"selector": ".cart-badge", "wait_ms": 1500},
+        "duration_ms": 1500
+      },
+      {
+        "name": "assert_cart_count",
+        "status": "error",
+        "attributes": {
+          "assertion": "text_equals",
+          "selector": ".cart-badge",
+          "expected": "1",
+          "actual": "0",
+          "error": "AssertionError: Expected cart badge text '1' but got '0'",
+          "error_category": "assertion_failed",
+          "error_signature": "assertion_failed:text_equals:cart_badge_count",
+          "passed": false,
+          "note": "Cart state update is async and badge renders before API response completes"
+        },
+        "duration_ms": 50
+      }
+    ],
+    "selectors_used": ["[data-action='add-to-cart']", ".cart-badge"],
+    "assertions": [
+      {"type": "text_equals", "selector": ".cart-badge", "expected": "1", "actual": "0", "passed": false}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "AssertionError: Cart badge showed '0' instead of '1'. The cart state update is asynchronous — the badge renders before the add-to-cart API response arrives. Need to wait for network idle or badge text change.",
+      "total_duration_ms": 2580,
+      "steps_completed": 3,
+      "steps_total": 4
+    }
+  }
+}

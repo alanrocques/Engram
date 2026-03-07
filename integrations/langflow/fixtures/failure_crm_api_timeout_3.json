@@ -1,0 +1,40 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Retrieve customer loyalty points balance from CRM",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "loyalty_balance", "channel": "chat"},
+        "duration_ms": 80
+      },
+      {
+        "name": "fetch_loyalty_crm",
+        "status": "error",
+        "attributes": {
+          "error": "CRM API timeout after 30000ms",
+          "error_category": "external_service_timeout",
+          "error_signature": "crm_api_timeout",
+          "endpoint": "https://crm.internal/api/v2/loyalty/balance",
+          "timeout_ms": 30000,
+          "retry_count": 3
+        },
+        "duration_ms": 91800
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-3340",
+      "customer_tier": "standard",
+      "crm_region": "us-east-1"
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "CRM API timeout after 30000ms — could not retrieve loyalty balance",
+      "error_category": "external_service_timeout",
+      "error_signature": "crm_api_timeout",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

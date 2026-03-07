@@ -64,7 +64,7 @@ function Sidebar() {
           </div>
           {!sidebarCollapsed && (
             <span className="truncate text-sm font-semibold text-sidebar-foreground">
-              Mnemosyne
+              Engram
             </span>
           )}
         </div>
@@ -127,7 +127,7 @@ function Header() {
   const routerState = useRouterState();
   const path = routerState.location.pathname;
 
-  const crumbs: string[] = ["Mnemosyne"];
+  const crumbs: string[] = ["Engram"];
   const segments = path.split("/").filter(Boolean);
   segments.forEach((seg) => {
     crumbs.push(seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, " "));

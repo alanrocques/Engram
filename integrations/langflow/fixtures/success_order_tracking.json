@@ -1,0 +1,44 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Provide order tracking information for order #ORD-77301",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "order_tracking", "order_id": "ORD-77301", "channel": "email"},
+        "duration_ms": 95
+      },
+      {
+        "name": "lookup_order",
+        "status": "ok",
+        "attributes": {"order_id": "ORD-77301", "order_status": "in_transit", "carrier": "FedEx"},
+        "duration_ms": 110
+      },
+      {
+        "name": "fetch_tracking_details",
+        "status": "ok",
+        "attributes": {"tracking_number": "FX-829104553", "estimated_delivery": "2026-03-10", "last_location": "Memphis, TN"},
+        "duration_ms": 230
+      },
+      {
+        "name": "compose_response",
+        "status": "ok",
+        "attributes": {"template": "tracking_update", "included_map_link": true},
+        "duration_ms": 80
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-5502",
+      "customer_tier": "premium",
+      "product_category": "apparel"
+    },
+    "result": {
+      "resolution": "tracking_provided",
+      "tracking_number": "FX-829104553",
+      "estimated_delivery": "2026-03-10",
+      "customer_satisfaction": "positive"
+    }
+  }
+}

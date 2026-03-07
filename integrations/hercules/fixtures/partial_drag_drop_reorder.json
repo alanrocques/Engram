@@ -1,0 +1,68 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate drag-and-drop reorder of dashboard widgets",
+    "test_target": "https://demo.teststore.com/dashboard/customize",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_customize",
+        "status": "ok",
+        "attributes": {"url": "/dashboard/customize", "load_time_ms": 1300},
+        "duration_ms": 1300
+      },
+      {
+        "name": "wait_for_widget_grid",
+        "status": "ok",
+        "attributes": {"selector": ".widget-grid", "widgets_count": 6},
+        "duration_ms": 600
+      },
+      {
+        "name": "drag_widget_a_to_position_2",
+        "status": "ok",
+        "attributes": {"source": "[data-widget='sales-chart']", "target_position": 2, "drag_method": "mouse_events"},
+        "duration_ms": 800
+      },
+      {
+        "name": "assert_widget_reordered",
+        "status": "ok",
+        "attributes": {"assertion": "element_at_position", "widget": "sales-chart", "expected_position": 2, "actual_position": 2, "passed": true},
+        "duration_ms": 60
+      },
+      {
+        "name": "click_save_layout",
+        "status": "ok",
+        "attributes": {"selector": "[data-testid='save-layout']"},
+        "duration_ms": 90
+      },
+      {
+        "name": "verify_persistence",
+        "status": "error",
+        "attributes": {
+          "action": "page_reload",
+          "error": "AssertionError: After reload, widget order reverted to default. Save API call returned 200 but layout was not persisted.",
+          "partial_success": true,
+          "drag_worked": true,
+          "save_api_status": 200,
+          "order_after_reload": "default"
+        },
+        "duration_ms": 2500
+      }
+    ],
+    "selectors_used": ["[data-widget='sales-chart']", "[data-testid='save-layout']", ".widget-grid"],
+    "assertions": [
+      {"type": "element_at_position", "widget": "sales-chart", "position": 2, "passed": true},
+      {"type": "layout_persisted", "passed": false}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "partial_success": true,
+      "total_duration_ms": 5350,
+      "steps_completed": 5,
+      "steps_total": 6,
+      "note": "Drag-and-drop reorder worked visually. Save button clicked and API returned 200. But after page reload, layout reverted. The save endpoint may require authentication or the response was cached."
+    }
+  }
+}

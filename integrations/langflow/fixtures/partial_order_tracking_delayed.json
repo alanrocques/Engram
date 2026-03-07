@@ -1,0 +1,50 @@
+{
+  "outcome": "partial",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Provide tracking for multi-package order with one missing package",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "order_tracking", "order_id": "ORD-83401", "channel": "chat"},
+        "duration_ms": 85
+      },
+      {
+        "name": "lookup_order",
+        "status": "ok",
+        "attributes": {"order_id": "ORD-83401", "packages_count": 3, "order_status": "partially_delivered"},
+        "duration_ms": 100
+      },
+      {
+        "name": "fetch_tracking_details",
+        "status": "ok",
+        "attributes": {
+          "packages_tracked": 2,
+          "packages_missing_tracking": 1,
+          "delivered": ["PKG-001", "PKG-002"],
+          "missing": ["PKG-003"]
+        },
+        "duration_ms": 280
+      },
+      {
+        "name": "investigate_missing_package",
+        "status": "ok",
+        "attributes": {"investigation_opened": true, "estimated_resolution": "48_hours", "carrier_contacted": true},
+        "duration_ms": 350
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-6602",
+      "customer_tier": "premium",
+      "product_category": "home_goods"
+    },
+    "result": {
+      "resolution": "partial_tracking_with_investigation",
+      "packages_found": 2,
+      "packages_missing": 1,
+      "investigation_opened": true,
+      "customer_satisfaction": "mixed"
+    }
+  }
+}

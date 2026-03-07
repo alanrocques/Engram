@@ -1,0 +1,47 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate embedded payment form inside Stripe iframe",
+    "test_target": "https://demo.teststore.com/checkout/payment",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_payment",
+        "status": "ok",
+        "attributes": {"url": "/checkout/payment", "load_time_ms": 1150},
+        "duration_ms": 1150
+      },
+      {
+        "name": "wait_for_payment_form",
+        "status": "ok",
+        "attributes": {"selector": "#payment-section", "wait_ms": 800},
+        "duration_ms": 800
+      },
+      {
+        "name": "fill_card_number",
+        "status": "error",
+        "attributes": {
+          "selector": "input[name='cardnumber']",
+          "strategy": "css_attribute",
+          "error": "ElementNotInteractableError: Element is inside an iframe but frame context was not switched",
+          "error_category": "iframe_context",
+          "error_signature": "iframe_context:stripe_payment:no_frame_switch",
+          "iframe_src": "https://js.stripe.com/v3/elements-inner-payment",
+          "frame_count": 3
+        },
+        "duration_ms": 2000
+      }
+    ],
+    "selectors_used": ["input[name='cardnumber']"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "ElementNotInteractableError: Card number input is inside a Stripe iframe. Must switch to iframe context using frame_locator('iframe[src*=\"stripe\"]') before interacting with payment fields.",
+      "total_duration_ms": 3950,
+      "steps_completed": 2,
+      "steps_total": 7
+    }
+  }
+}

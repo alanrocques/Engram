@@ -1,0 +1,47 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Update customer contact information in CRM",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "update_contact_info", "channel": "email"},
+        "duration_ms": 105
+      },
+      {
+        "name": "verify_identity",
+        "status": "ok",
+        "attributes": {"method": "security_questions", "verified": true},
+        "duration_ms": 180
+      },
+      {
+        "name": "update_customer_crm",
+        "status": "error",
+        "attributes": {
+          "error": "CRM API timeout after 30000ms",
+          "error_category": "external_service_timeout",
+          "error_signature": "crm_api_timeout",
+          "endpoint": "https://crm.internal/api/v2/customers/CUST-8834",
+          "timeout_ms": 30000,
+          "retry_count": 3
+        },
+        "duration_ms": 91200
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-8834",
+      "customer_tier": "premium",
+      "crm_region": "us-east-1",
+      "fields_to_update": ["phone", "address"]
+    },
+    "result": {
+      "resolution": "failed",
+      "error": "CRM API timeout after 30000ms — unable to update contact info",
+      "error_category": "external_service_timeout",
+      "error_signature": "crm_api_timeout",
+      "customer_satisfaction": "negative"
+    }
+  }
+}

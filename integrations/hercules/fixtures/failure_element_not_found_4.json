@@ -1,0 +1,47 @@
+{
+  "outcome": "failure",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate notification bell click in app header",
+    "test_target": "https://demo.teststore.com/dashboard",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_dashboard",
+        "status": "ok",
+        "attributes": {"url": "/dashboard", "load_time_ms": 1050},
+        "duration_ms": 1050
+      },
+      {
+        "name": "wait_for_header",
+        "status": "ok",
+        "attributes": {"selector": "header.app-header", "wait_ms": 500},
+        "duration_ms": 500
+      },
+      {
+        "name": "click_notification_bell",
+        "status": "error",
+        "attributes": {
+          "selector": "#notification-bell",
+          "strategy": "css_id",
+          "error": "ElementNotFoundError: No element found matching selector '#notification-bell'",
+          "error_category": "element_not_found",
+          "error_signature": "element_not_found:css_id:#notification-bell",
+          "page_has_dynamic_content": true,
+          "actual_selector": "button[aria-label='Notifications']"
+        },
+        "duration_ms": 5000
+      }
+    ],
+    "selectors_used": ["#notification-bell"],
+    "assertions": [],
+    "screenshots": [],
+    "result": {
+      "test_passed": false,
+      "error": "ElementNotFoundError: No element found matching selector '#notification-bell'. The header is a shared React component that uses aria-labels for interactive elements rather than IDs.",
+      "total_duration_ms": 6550,
+      "steps_completed": 2,
+      "steps_total": 5
+    }
+  }
+}

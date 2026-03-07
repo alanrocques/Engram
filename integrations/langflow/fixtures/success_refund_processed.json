@@ -1,0 +1,50 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "langflow-support-v1",
+    "task": "Process customer refund request for order #ORD-88412",
+    "spans": [
+      {
+        "name": "parse_customer_request",
+        "status": "ok",
+        "attributes": {"intent": "refund", "order_id": "ORD-88412", "channel": "chat"},
+        "duration_ms": 120
+      },
+      {
+        "name": "lookup_order",
+        "status": "ok",
+        "attributes": {"order_id": "ORD-88412", "order_status": "delivered", "amount": 79.99},
+        "duration_ms": 85
+      },
+      {
+        "name": "check_refund_eligibility",
+        "status": "ok",
+        "attributes": {"eligible": true, "reason": "within_30_day_window", "days_since_delivery": 12},
+        "duration_ms": 45
+      },
+      {
+        "name": "process_refund",
+        "status": "ok",
+        "attributes": {"refund_amount": 79.99, "refund_method": "original_payment", "refund_id": "REF-44201"},
+        "duration_ms": 320
+      },
+      {
+        "name": "send_confirmation",
+        "status": "ok",
+        "attributes": {"email_sent": true, "template": "refund_confirmation"},
+        "duration_ms": 150
+      }
+    ],
+    "context": {
+      "customer_id": "CUST-9921",
+      "customer_tier": "standard",
+      "product_category": "electronics"
+    },
+    "result": {
+      "resolution": "refund_issued",
+      "refund_id": "REF-44201",
+      "amount": 79.99,
+      "customer_satisfaction": "positive"
+    }
+  }
+}

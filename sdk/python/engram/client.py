@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class RetrievedLesson(BaseModel):
-    """A lesson retrieved from Mnemosyne."""
+    """A lesson retrieved from Engram."""
 
     id: str
     agent_id: str
@@ -47,12 +47,12 @@ class LessonResult(BaseModel):
     confidence: float
 
 
-class MnemosyneClient:
+class EngramClient:
     """
-    Synchronous client for Mnemosyne API.
+    Synchronous client for Engram API.
 
     Example:
-        client = MnemosyneClient(base_url="http://localhost:8000", agent_id="my-agent")
+        client = EngramClient(base_url="http://localhost:8000", agent_id="my-agent")
         lessons = client.retrieve("How do I handle refunds?")
     """
 
@@ -221,12 +221,12 @@ class MnemosyneClient:
         self.close()
 
 
-class AsyncMnemosyneClient:
+class AsyncEngramClient:
     """
-    Asynchronous client for Mnemosyne API.
+    Asynchronous client for Engram API.
 
     Example:
-        async with AsyncMnemosyneClient(base_url="http://localhost:8000") as client:
+        async with AsyncEngramClient(base_url="http://localhost:8000") as client:
             lessons = await client.retrieve("How do I handle refunds?")
     """
 

@@ -1,0 +1,67 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate pagination test for product listing page",
+    "test_target": "https://demo.teststore.com/products",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_products",
+        "status": "ok",
+        "attributes": {"url": "/products", "load_time_ms": 900},
+        "duration_ms": 900
+      },
+      {
+        "name": "assert_page_1_items",
+        "status": "ok",
+        "attributes": {"assertion": "element_count_equals", "selector": ".product-card", "expected": 20, "actual": 20, "passed": true},
+        "duration_ms": 80
+      },
+      {
+        "name": "click_next_page",
+        "status": "ok",
+        "attributes": {"selector": "[aria-label='Next page']", "strategy": "aria_label"},
+        "duration_ms": 110
+      },
+      {
+        "name": "wait_for_page_2",
+        "status": "ok",
+        "attributes": {"selector": ".product-card", "wait_ms": 1200},
+        "duration_ms": 1200
+      },
+      {
+        "name": "assert_page_2_url",
+        "status": "ok",
+        "attributes": {"assertion": "url_contains", "expected": "page=2", "passed": true},
+        "duration_ms": 30
+      },
+      {
+        "name": "assert_page_2_items",
+        "status": "ok",
+        "attributes": {"assertion": "element_count_equals", "selector": ".product-card", "expected": 20, "actual": 20, "passed": true},
+        "duration_ms": 75
+      },
+      {
+        "name": "assert_page_indicator",
+        "status": "ok",
+        "attributes": {"assertion": "element_has_class", "selector": "[data-page='2']", "class": "active", "passed": true},
+        "duration_ms": 40
+      }
+    ],
+    "selectors_used": [".product-card", "[aria-label='Next page']", "[data-page='2']"],
+    "assertions": [
+      {"type": "element_count_equals", "selector": ".product-card", "expected": 20, "passed": true},
+      {"type": "url_contains", "expected": "page=2", "passed": true},
+      {"type": "element_has_class", "selector": "[data-page='2']", "class": "active", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 2435,
+      "pages_tested": 2,
+      "steps_completed": 7,
+      "steps_total": 7
+    }
+  }
+}

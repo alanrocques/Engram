@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     app = FastAPI(
-        title="Mnemosyne",
+        title="Engram",
         description="Experiential memory layer for AI agents",
         version="0.1.0",
         lifespan=lifespan,

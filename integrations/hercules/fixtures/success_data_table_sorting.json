@@ -1,0 +1,65 @@
+{
+  "outcome": "success",
+  "trace_data": {
+    "agent": "hercules-test-v1",
+    "task": "Automate data table sorting verification for admin order list",
+    "test_target": "https://demo.teststore.com/admin/orders",
+    "browser": "chromium",
+    "spans": [
+      {
+        "name": "navigate_to_admin_orders",
+        "status": "ok",
+        "attributes": {"url": "/admin/orders", "load_time_ms": 1100},
+        "duration_ms": 1100
+      },
+      {
+        "name": "wait_for_table_load",
+        "status": "ok",
+        "attributes": {"selector": "table.orders-table tbody tr", "min_rows": 5, "actual_rows": 25},
+        "duration_ms": 800
+      },
+      {
+        "name": "click_date_column_header",
+        "status": "ok",
+        "attributes": {"selector": "th[data-sort='date']", "sort_direction": "desc"},
+        "duration_ms": 450
+      },
+      {
+        "name": "wait_for_sort",
+        "status": "ok",
+        "attributes": {"wait_ms": 500},
+        "duration_ms": 500
+      },
+      {
+        "name": "assert_sort_order",
+        "status": "ok",
+        "attributes": {"assertion": "column_sorted_desc", "column": "date", "first_value": "2025-03-07", "last_value": "2025-01-15", "passed": true},
+        "duration_ms": 120
+      },
+      {
+        "name": "click_date_column_header_asc",
+        "status": "ok",
+        "attributes": {"selector": "th[data-sort='date']", "sort_direction": "asc"},
+        "duration_ms": 420
+      },
+      {
+        "name": "assert_sort_order_asc",
+        "status": "ok",
+        "attributes": {"assertion": "column_sorted_asc", "column": "date", "first_value": "2025-01-15", "last_value": "2025-03-07", "passed": true},
+        "duration_ms": 110
+      }
+    ],
+    "selectors_used": ["table.orders-table tbody tr", "th[data-sort='date']"],
+    "assertions": [
+      {"type": "column_sorted_desc", "column": "date", "passed": true},
+      {"type": "column_sorted_asc", "column": "date", "passed": true}
+    ],
+    "screenshots": [],
+    "result": {
+      "test_passed": true,
+      "total_duration_ms": 3500,
+      "steps_completed": 7,
+      "steps_total": 7
+    }
+  }
+}
