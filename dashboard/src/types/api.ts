@@ -64,6 +64,7 @@ export const TraceSchema = z.object({
   extraction_mode: z.string().nullable(),
   retrieved_lesson_ids: z.array(uuid).nullable(),
   is_influenced: z.boolean().optional(),
+  trace_data: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 
 export type Trace = z.infer<typeof TraceSchema>;
