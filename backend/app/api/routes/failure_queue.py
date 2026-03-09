@@ -1,7 +1,9 @@
 import logging
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, status
-from sqlalchemy import func, select
+from fastapi.responses import JSONResponse
+from sqlalchemy import func, select, update
 
 from app.api.deps import AsyncSessionDep
 from app.db.models import FailureQueue
@@ -37,13 +39,64 @@ async def get_failure_queue_stats(session: AsyncSessionDep) -> dict:
     return {"pending": pending, "by_category": by_category, "by_signature": by_signature}
 
 
-@router.post("/analyze", status_code=status.HTTP_202_ACCEPTED)
-async def trigger_batch_analysis() -> dict:
-    """Manually trigger batch failure analysis task."""
+@router.post("/analyze")
+async def trigger_batch_analysis(session: AsyncSessionDep) -> JSONResponse:
+    """Manually trigger batch failure analysis task.
+
+    Tries Celery first (returns 202). If Celery is unavailable, runs
+    the analysis inline and returns 200 with actual results.
+    """
     try:
         from app.workers.tasks import batch_analyze_failures_task
         batch_analyze_failures_task.delay()
-        return {"status": "queued", "message": "Batch failure analysis queued"}
+        return JSONResponse(
+            status_code=status.HTTP_202_ACCEPTED,
+            content={"status": "queued", "message": "Batch failure analysis queued"},
+        )
     except Exception as e:
-        logger.warning(f"Failed to queue batch analysis: {e}")
-        return {"status": "queued", "message": "Batch failure analysis queued (Celery unavailable)"}
+        logger.warning(f"Celery unavailable ({e}), running batch analysis inline")
+
+    # Inline fallback: mirror logic from tasks.batch_analyze_failures_task
+    from app.services.extraction import batch_analyze_failure_group
+
+    result = await session.execute(
+        select(FailureQueue.error_signature, func.count(FailureQueue.id).label("cnt"))
+        .where(FailureQueue.processed_at.is_(None))
+        .where(FailureQueue.error_signature.is_not(None))
+        .group_by(FailureQueue.error_signature)
+        .having(func.count(FailureQueue.id) >= 3)
+    )
+    groups = result.all()
+
+    lessons_created = 0
+    for row in groups:
+        sig = row[0]
+        ids_result = await session.execute(
+            select(FailureQueue.id, FailureQueue.trace_id)
+            .where(FailureQueue.processed_at.is_(None))
+            .where(FailureQueue.error_signature == sig)
+        )
+        queue_rows = ids_result.all()
+        trace_ids = [r[1] for r in queue_rows]
+        queue_ids = [r[0] for r in queue_rows]
+
+        lesson = await batch_analyze_failure_group(session, sig, trace_ids)
+        if lesson:
+            lessons_created += 1
+            await session.execute(
+                update(FailureQueue)
+                .where(FailureQueue.id.in_(queue_ids))
+                .values(processed_at=datetime.now(timezone.utc))
+            )
+
+    await session.commit()
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "status": "completed",
+            "message": f"Analyzed {len(groups)} groups, created {lessons_created} lessons",
+            "groups_processed": len(groups),
+            "lessons_created": lessons_created,
+        },
+    )

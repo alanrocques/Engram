@@ -60,9 +60,14 @@ const columns: ColumnDef<Trace, unknown>[] = [
     accessorKey: "id",
     header: "ID",
     cell: ({ row }) => (
-      <span className="font-mono text-xs text-zinc-400">
+      <Link
+        to="/traces/$traceId"
+        params={{ traceId: row.original.id }}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        className="font-mono text-xs text-blue-400 hover:text-blue-300 hover:underline"
+      >
         {row.original.id.slice(0, 8)}
-      </span>
+      </Link>
     ),
     size: 90,
   },

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { Trace, TraceFilters } from "@/types/api";
 
@@ -27,5 +27,16 @@ export function useTrace(id: string) {
     queryKey: traceKeys.detail(id),
     queryFn: () => api.get<Trace>(`/api/v1/traces/${id}`),
     enabled: Boolean(id),
+  });
+}
+
+export function useProcessTrace() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.post(`/api/v1/traces/${id}/process`),
+    onSuccess: (_data, id) => {
+      void queryClient.invalidateQueries({ queryKey: traceKeys.detail(id) });
+      void queryClient.invalidateQueries({ queryKey: traceKeys.lists() });
+    },
   });
 }

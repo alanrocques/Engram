@@ -15,6 +15,7 @@ import { Route as FailureQueueRouteImport } from './routes/failure-queue'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TracesIndexRouteImport } from './routes/traces/index'
 import { Route as LessonsIndexRouteImport } from './routes/lessons/index'
+import { Route as TracesTraceIdRouteImport } from './routes/traces/$traceId'
 import { Route as LessonsLessonIdRouteImport } from './routes/lessons/$lessonId'
 
 const SettingsRoute = SettingsRouteImport.update({
@@ -47,6 +48,11 @@ const LessonsIndexRoute = LessonsIndexRouteImport.update({
   path: '/lessons/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TracesTraceIdRoute = TracesTraceIdRouteImport.update({
+  id: '/traces/$traceId',
+  path: '/traces/$traceId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LessonsLessonIdRoute = LessonsLessonIdRouteImport.update({
   id: '/lessons/$lessonId',
   path: '/lessons/$lessonId',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/flagged': typeof FlaggedRoute
   '/settings': typeof SettingsRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/traces/$traceId': typeof TracesTraceIdRoute
   '/lessons/': typeof LessonsIndexRoute
   '/traces/': typeof TracesIndexRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/flagged': typeof FlaggedRoute
   '/settings': typeof SettingsRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/traces/$traceId': typeof TracesTraceIdRoute
   '/lessons': typeof LessonsIndexRoute
   '/traces': typeof TracesIndexRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/flagged': typeof FlaggedRoute
   '/settings': typeof SettingsRoute
   '/lessons/$lessonId': typeof LessonsLessonIdRoute
+  '/traces/$traceId': typeof TracesTraceIdRoute
   '/lessons/': typeof LessonsIndexRoute
   '/traces/': typeof TracesIndexRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/flagged'
     | '/settings'
     | '/lessons/$lessonId'
+    | '/traces/$traceId'
     | '/lessons/'
     | '/traces/'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/flagged'
     | '/settings'
     | '/lessons/$lessonId'
+    | '/traces/$traceId'
     | '/lessons'
     | '/traces'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/flagged'
     | '/settings'
     | '/lessons/$lessonId'
+    | '/traces/$traceId'
     | '/lessons/'
     | '/traces/'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   FlaggedRoute: typeof FlaggedRoute
   SettingsRoute: typeof SettingsRoute
   LessonsLessonIdRoute: typeof LessonsLessonIdRoute
+  TracesTraceIdRoute: typeof TracesTraceIdRoute
   LessonsIndexRoute: typeof LessonsIndexRoute
   TracesIndexRoute: typeof TracesIndexRoute
 }
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LessonsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/traces/$traceId': {
+      id: '/traces/$traceId'
+      path: '/traces/$traceId'
+      fullPath: '/traces/$traceId'
+      preLoaderRoute: typeof TracesTraceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lessons/$lessonId': {
       id: '/lessons/$lessonId'
       path: '/lessons/$lessonId'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   FlaggedRoute: FlaggedRoute,
   SettingsRoute: SettingsRoute,
   LessonsLessonIdRoute: LessonsLessonIdRoute,
+  TracesTraceIdRoute: TracesTraceIdRoute,
   LessonsIndexRoute: LessonsIndexRoute,
   TracesIndexRoute: TracesIndexRoute,
 }

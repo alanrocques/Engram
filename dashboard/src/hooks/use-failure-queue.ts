@@ -19,9 +19,17 @@ export function useTriggerBatchAnalysis() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      api.post<{ status: string; message: string }>("/api/v1/failure-queue/analyze"),
-    onSuccess: () => {
+      api.post<{
+        status: string;
+        message: string;
+        groups_processed?: number;
+        lessons_created?: number;
+      }>("/api/v1/failure-queue/analyze"),
+    onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: failureQueueKeys.all });
+      if (data.status === "completed" && (data.lessons_created ?? 0) > 0) {
+        void queryClient.invalidateQueries({ queryKey: ["lessons"] });
+      }
     },
   });
 }

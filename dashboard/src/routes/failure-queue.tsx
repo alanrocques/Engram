@@ -94,7 +94,15 @@ function FailureQueuePage() {
               <button
                 onClick={() => {
                   triggerMutation.mutate(undefined, {
-                    onSuccess: () => toast.success("Batch analysis started"),
+                    onSuccess: (data) => {
+                      if (data.status === "completed") {
+                        toast.success(
+                          `Analyzed ${data.groups_processed ?? 0} groups, created ${data.lessons_created ?? 0} lessons`,
+                        );
+                      } else {
+                        toast.success("Batch analysis queued");
+                      }
+                    },
                     onError: () => toast.error("Failed to start analysis"),
                   });
                 }}
