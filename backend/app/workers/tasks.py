@@ -10,16 +10,23 @@ logger = logging.getLogger(__name__)
 
 
 def run_async(coro):
-    """Helper to run async code in sync Celery tasks."""
+    """Helper to run async code in sync Celery tasks.
+
+    Creates a fresh event loop and disposes the engine afterward
+    to prevent connection pool leaks across loops.
+    """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
         return loop.run_until_complete(coro)
     finally:
+        # Dispose the engine to prevent connections leaking across event loops
+        from app.db.engine import engine
+        loop.run_until_complete(engine.dispose())
         loop.close()
 
 
-@celery_app.task(bind=True, max_retries=3)
+@celery_app.task(bind=True, max_retries=3, rate_limit='6/m')
 def process_trace_task(self, trace_id: str):
     """
     Celery task to process a trace and extract a lesson.

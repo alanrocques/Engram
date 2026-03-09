@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   useReactTable,
@@ -157,7 +157,7 @@ function TracesPage() {
 
   const { data, isLoading } = useTraces({ limit: 500 });
 
-  const filteredData = (() => {
+  const filteredData = useMemo(() => {
     if (!data) return [];
     let result = data;
     if (outcomeFilter !== "all") {
@@ -174,7 +174,7 @@ function TracesPage() {
       result = result.filter((t) => t.is_influenced);
     }
     return result;
-  })();
+  }, [data, outcomeFilter, agentFilter, statusFilter, influencedOnly]);
 
   const table = useReactTable({
     data: filteredData,
@@ -202,7 +202,7 @@ function TracesPage() {
         <div className="flex flex-wrap items-center gap-3 border-b border-zinc-800 p-4">
           <select
             value={outcomeFilter}
-            onChange={(e) => setOutcomeFilter(e.target.value)}
+            onChange={(e) => { setOutcomeFilter(e.target.value); setExpanded({}); }}
             className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="all">All outcomes</option>
@@ -215,13 +215,13 @@ function TracesPage() {
             type="text"
             placeholder="Filter by agent ID..."
             value={agentFilter}
-            onChange={(e) => setAgentFilter(e.target.value)}
+            onChange={(e) => { setAgentFilter(e.target.value); setExpanded({}); }}
             className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
 
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setExpanded({}); }}
             className="rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="all">All statuses</option>
@@ -234,7 +234,7 @@ function TracesPage() {
             <input
               type="checkbox"
               checked={influencedOnly}
-              onChange={(e) => setInfluencedOnly(e.target.checked)}
+              onChange={(e) => { setInfluencedOnly(e.target.checked); setExpanded({}); }}
               className="accent-blue-500"
             />
             Influenced only
@@ -297,9 +297,8 @@ function TracesPage() {
               )}
 
               {table.getRowModel().rows.map((row) => (
-                <>
+                <Fragment key={row.id}>
                   <tr
-                    key={row.id}
                     onClick={() => row.toggleExpanded()}
                     className="cursor-pointer border-b border-zinc-800/50 hover:bg-zinc-800/50"
                   >
@@ -354,7 +353,7 @@ function TracesPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
