@@ -1,5 +1,4 @@
 from typing import Any
-from uuid import UUID
 
 import httpx
 from pydantic import BaseModel
@@ -18,6 +17,11 @@ class RetrievedLesson(BaseModel):
     tags: list[str]
     domain: str
     similarity: float
+    utility: float = 0.5
+    vector_score: float = 0.0
+    keyword_score: float = 0.0
+    has_conflict: bool = False
+    conflict_ids: list[str] = []
 
 
 class RetrieveResult(BaseModel):
@@ -45,6 +49,15 @@ class LessonResult(BaseModel):
     lesson_text: str
     outcome: str
     confidence: float
+
+
+class OutcomeResult(BaseModel):
+    """Result of reporting a trace outcome."""
+
+    trace_id: str
+    outcome: str
+    updated_lesson_ids: list[str]
+    updated_count: int
 
 
 class EngramClient:
@@ -87,6 +100,10 @@ class EngramClient:
         top_k: int = 5,
         min_confidence: float = 0.3,
         include_context: bool = True,
+        search_mode: str | None = None,
+        vector_weight: float | None = None,
+        utility_weight: float | None = None,
+        include_archived: bool = False,
     ) -> RetrieveResult:
         """
         Retrieve lessons relevant to the given context.
@@ -98,21 +115,30 @@ class EngramClient:
             top_k: Maximum number of lessons to return
             min_confidence: Minimum confidence threshold
             include_context: Include formatted context string for prompts
+            search_mode: Search mode: "vector", "keyword", or "hybrid" (default: backend default)
+            vector_weight: Weight for vector score in hybrid mode (0.0-1.0)
+            utility_weight: Weight for utility score in re-ranking (0.0-1.0)
+            include_archived: Include archived lessons in results
 
         Returns:
             RetrieveResult with lessons and optional formatted context
         """
-        response = self._client.post(
-            "/retrieve",
-            json={
-                "query": context,
-                "agent_id": agent_id or self.agent_id,
-                "domain": domain,
-                "top_k": top_k,
-                "min_confidence": min_confidence,
-                "include_context": include_context,
-            },
-        )
+        payload: dict[str, Any] = {
+            "query": context,
+            "agent_id": agent_id or self.agent_id,
+            "domain": domain,
+            "top_k": top_k,
+            "min_confidence": min_confidence,
+            "include_context": include_context,
+            "include_archived": include_archived,
+        }
+        if search_mode is not None:
+            payload["search_mode"] = search_mode
+        if vector_weight is not None:
+            payload["vector_weight"] = vector_weight
+        if utility_weight is not None:
+            payload["utility_weight"] = utility_weight
+        response = self._client.post("/retrieve", json=payload)
         response.raise_for_status()
         return RetrieveResult(**response.json())
 
@@ -198,17 +224,38 @@ class EngramClient:
         self,
         trace_id: str,
         outcome: str,
-    ) -> None:
+        retrieved_lesson_ids: list[str] | None = None,
+        downstream_utility: float = 0.0,
+        context_similarity: float = 1.0,
+    ) -> OutcomeResult:
         """
         Report the outcome of a previously ingested trace.
-        Triggers reprocessing to update the associated lesson.
+
+        Triggers Bellman utility updates and failure penalty propagation
+        for any lessons that were retrieved during this trace's execution.
 
         Args:
-            trace_id: The trace ID to update
+            trace_id: The trace ID to report on
             outcome: The outcome ("success", "failure", "partial")
+            retrieved_lesson_ids: IDs of lessons that were in context when the trace ran
+            downstream_utility: How useful the retrieved lessons were (0.0-1.0)
+            context_similarity: Similarity score used when retrieving these lessons (0.0-1.0)
+
+        Returns:
+            OutcomeResult with updated lesson info
         """
-        response = self._client.post(f"/traces/{trace_id}/process")
+        response = self._client.post(
+            "/outcomes",
+            json={
+                "trace_id": trace_id,
+                "outcome": outcome,
+                "retrieved_lesson_ids": retrieved_lesson_ids or [],
+                "downstream_utility": downstream_utility,
+                "context_similarity": context_similarity,
+            },
+        )
         response.raise_for_status()
+        return OutcomeResult(**response.json())
 
     def close(self) -> None:
         """Close the HTTP client."""
@@ -261,19 +308,28 @@ class AsyncEngramClient:
         top_k: int = 5,
         min_confidence: float = 0.3,
         include_context: bool = True,
+        search_mode: str | None = None,
+        vector_weight: float | None = None,
+        utility_weight: float | None = None,
+        include_archived: bool = False,
     ) -> RetrieveResult:
         """Retrieve lessons relevant to the given context."""
-        response = await self._client.post(
-            "/retrieve",
-            json={
-                "query": context,
-                "agent_id": agent_id or self.agent_id,
-                "domain": domain,
-                "top_k": top_k,
-                "min_confidence": min_confidence,
-                "include_context": include_context,
-            },
-        )
+        payload: dict[str, Any] = {
+            "query": context,
+            "agent_id": agent_id or self.agent_id,
+            "domain": domain,
+            "top_k": top_k,
+            "min_confidence": min_confidence,
+            "include_context": include_context,
+            "include_archived": include_archived,
+        }
+        if search_mode is not None:
+            payload["search_mode"] = search_mode
+        if vector_weight is not None:
+            payload["vector_weight"] = vector_weight
+        if utility_weight is not None:
+            payload["utility_weight"] = utility_weight
+        response = await self._client.post("/retrieve", json=payload)
         response.raise_for_status()
         return RetrieveResult(**response.json())
 
@@ -331,10 +387,31 @@ class AsyncEngramClient:
             confidence=data["confidence"],
         )
 
-    async def report_outcome(self, trace_id: str, outcome: str) -> None:
-        """Report the outcome of a previously ingested trace."""
-        response = await self._client.post(f"/traces/{trace_id}/process")
+    async def report_outcome(
+        self,
+        trace_id: str,
+        outcome: str,
+        retrieved_lesson_ids: list[str] | None = None,
+        downstream_utility: float = 0.0,
+        context_similarity: float = 1.0,
+    ) -> OutcomeResult:
+        """
+        Report the outcome of a previously ingested trace.
+
+        Triggers Bellman utility updates and failure penalty propagation.
+        """
+        response = await self._client.post(
+            "/outcomes",
+            json={
+                "trace_id": trace_id,
+                "outcome": outcome,
+                "retrieved_lesson_ids": retrieved_lesson_ids or [],
+                "downstream_utility": downstream_utility,
+                "context_similarity": context_similarity,
+            },
+        )
         response.raise_for_status()
+        return OutcomeResult(**response.json())
 
     async def close(self) -> None:
         """Close the HTTP client."""

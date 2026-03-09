@@ -91,7 +91,9 @@ class TestTraceIngestion:
         for fixture in fixtures:
             # Use a sub-run-id to avoid collisions with other tests
             sub_run_id = f"{run_id}-all-{fixture.stem}"
-            tid = adapter.ingest_trace(fixture, run_id=sub_run_id)
+            # Use process_async=false to avoid flooding the Celery queue,
+            # which would cause later tests to time out waiting for processing.
+            tid = adapter.ingest_trace(fixture, run_id=sub_run_id, process_async=False)
             assert tid, f"Failed to ingest {fixture.name}"
             trace_ids.append(tid)
 

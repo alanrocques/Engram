@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def get_embedding_model() -> SentenceTransformer:
     """Load and cache the embedding model."""
     logger.info(f"Loading embedding model: {settings.embedding_model}")
-    model = SentenceTransformer(settings.embedding_model)
+    model = SentenceTransformer(settings.embedding_model, device="cpu")
     return model
 
 

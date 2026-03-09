@@ -13,7 +13,7 @@ from typing import Any
 
 import httpx
 
-from integrations.shared.outcomes_client import OutcomeReport, OutcomesClient
+from engram import EngramClient
 from integrations.shared.trace_builder import TraceBuilder
 
 AGENT_ID = "langflow-support-v1"
@@ -37,7 +37,7 @@ class LangflowEngramAdapter:
         self.domain = DOMAIN
 
         self._trace_builder = TraceBuilder(agent_id=agent_id, domain=DOMAIN)
-        self._outcomes_client = OutcomesClient(base_url=self.base_url)
+        self._engram_client = EngramClient(base_url=self.base_url, agent_id=agent_id)
         self._http = httpx.Client(
             base_url=f"{self.base_url}/api/v1",
             timeout=30.0,
@@ -51,6 +51,7 @@ class LangflowEngramAdapter:
         fixture_path: str | Path,
         *,
         run_id: str | None = None,
+        process_async: bool = True,
     ) -> str:
         """
         Ingest a trace from a fixture JSON file.
@@ -58,13 +59,14 @@ class LangflowEngramAdapter:
         Args:
             fixture_path: Path to the fixture JSON file (absolute or relative to fixtures/).
             run_id: Unique run ID to stamp into the trace for dedup avoidance.
+            process_async: Whether to queue for background processing (default True).
 
         Returns:
             The trace ID assigned by the Engram API.
         """
         path = self._resolve_fixture_path(fixture_path)
         payload = self._trace_builder.build_from_fixture(path, run_id=run_id)
-        resp = self._http.post("/traces", json=payload)
+        resp = self._http.post("/traces", params={"process_async": process_async}, json=payload)
         resp.raise_for_status()
         data = resp.json()
         return data["id"]
@@ -154,14 +156,13 @@ class LangflowEngramAdapter:
         Returns:
             Outcome response with updated lesson info.
         """
-        report = OutcomeReport(
+        result = self._engram_client.report_outcome(
             trace_id=trace_id,
             outcome=outcome,
             retrieved_lesson_ids=retrieved_lesson_ids or [],
             downstream_utility=downstream_utility,
             context_similarity=context_similarity,
         )
-        result = self._outcomes_client.report(report)
         return result.model_dump()
 
     # -- Helpers --
@@ -199,7 +200,7 @@ class LangflowEngramAdapter:
     def close(self) -> None:
         """Close HTTP clients."""
         self._http.close()
-        self._outcomes_client.close()
+        self._engram_client.close()
 
     def __enter__(self) -> LangflowEngramAdapter:
         return self
