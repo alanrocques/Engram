@@ -10,10 +10,11 @@ import {
   type ColumnDef,
   type SortingState,
   type ExpandedState,
+  type RowSelectionState,
 } from "@tanstack/react-table";
-import { ChevronDown, ChevronRight, ChevronUp, Inbox, Zap } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, Inbox, Trash2, Zap } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
-import { useTraces } from "@/hooks/use-traces";
+import { useTraces, useDeleteTraces } from "@/hooks/use-traces";
 import { cn, formatRelative } from "@/lib/utils";
 import type { Trace } from "@/types/api";
 
@@ -34,6 +35,30 @@ const statusBadgeColor: Record<string, string> = {
 };
 
 const columns: ColumnDef<Trace, unknown>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <input
+        type="checkbox"
+        checked={table.getIsAllPageRowsSelected()}
+        onChange={table.getToggleAllPageRowsSelectedHandler()}
+        className="accent-blue-500"
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <input
+        type="checkbox"
+        checked={row.getIsSelected()}
+        onChange={row.getToggleSelectedHandler()}
+        onClick={(e) => e.stopPropagation()}
+        className="accent-blue-500"
+        aria-label="Select row"
+      />
+    ),
+    size: 36,
+    enableSorting: false,
+  },
   {
     id: "expand",
     header: "",
@@ -153,6 +178,8 @@ const columns: ColumnDef<Trace, unknown>[] = [
 function TracesPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [expanded, setExpanded] = useState<ExpandedState>({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Filters
   const [outcomeFilter, setOutcomeFilter] = useState("all");
@@ -161,6 +188,7 @@ function TracesPage() {
   const [influencedOnly, setInfluencedOnly] = useState(false);
 
   const { data, isLoading } = useTraces({ limit: 500 });
+  const deleteTraces = useDeleteTraces();
 
   const filteredData = useMemo(() => {
     if (!data) return [];
@@ -181,12 +209,27 @@ function TracesPage() {
     return result;
   }, [data, outcomeFilter, agentFilter, statusFilter, influencedOnly]);
 
+  const selectedCount = Object.keys(rowSelection).length;
+
+  const handleDeleteSelected = () => {
+    const selectedIds = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original.id);
+    deleteTraces.mutate(selectedIds, {
+      onSuccess: () => {
+        setRowSelection({});
+        setShowDeleteConfirm(false);
+      },
+    });
+  };
+
   const table = useReactTable({
     data: filteredData,
     columns,
-    state: { sorting, expanded },
+    state: { sorting, expanded, rowSelection },
     onSortingChange: setSorting,
     onExpandedChange: setExpanded,
+    onRowSelectionChange: setRowSelection,
     getRowCanExpand: () => true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -244,7 +287,45 @@ function TracesPage() {
             />
             Influenced only
           </label>
+
+          {selectedCount > 0 && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="ml-auto flex items-center gap-1.5 rounded bg-rose-500/15 px-3 py-1 text-sm font-medium text-rose-400 hover:bg-rose-500/25"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete {selectedCount} trace{selectedCount === 1 ? "" : "s"}
+            </button>
+          )}
         </div>
+
+        {/* Delete confirmation dialog */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="w-full max-w-md rounded-lg border border-zinc-700 bg-zinc-900 p-6 shadow-xl">
+              <h3 className="text-lg font-semibold text-zinc-100">Delete traces</h3>
+              <p className="mt-2 text-sm text-zinc-400">
+                Delete {selectedCount} trace{selectedCount === 1 ? "" : "s"}? This cannot be undone.
+              </p>
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deleteTraces.isPending}
+                  className="rounded border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteSelected}
+                  disabled={deleteTraces.isPending}
+                  className="rounded bg-rose-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-rose-500 disabled:opacity-50"
+                >
+                  {deleteTraces.isPending ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Table */}
         <div className="overflow-x-auto">

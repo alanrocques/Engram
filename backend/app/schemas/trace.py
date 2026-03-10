@@ -58,6 +58,9 @@ class TraceResponse(BaseModel):
     processed_at: datetime | None = None
     content_hash: str | None = None
     outcome: str | None = None
+    extraction_mode: str | None = None
+    is_influenced: bool = False
+    retrieved_lesson_ids: list[UUID] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -92,3 +95,14 @@ class TraceBatchResponse(BaseModel):
     created: int = Field(..., description="Number of traces created")
     skipped: int = Field(..., description="Number of traces skipped (duplicates)")
     trace_ids: list[str] = Field(..., description="IDs of created traces")
+
+
+class TraceDeleteBulk(BaseModel):
+    """Schema for bulk trace deletion."""
+
+    ids: list[UUID] = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="Trace IDs to delete (max 100)",
+    )

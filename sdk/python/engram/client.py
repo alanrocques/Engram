@@ -147,6 +147,7 @@ class EngramClient:
         trace_data: dict[str, Any],
         agent_id: str | None = None,
         process_async: bool = True,
+        outcome: str = "unknown",
     ) -> TraceResult:
         """
         Ingest an agent execution trace.
@@ -155,6 +156,7 @@ class EngramClient:
             trace_data: The trace data to ingest
             agent_id: Agent ID (defaults to client's agent_id)
             process_async: Queue for background processing
+            outcome: Outcome of the trace ("success", "failure", "partial", "unknown")
 
         Returns:
             TraceResult with trace ID and status
@@ -166,6 +168,7 @@ class EngramClient:
                 "agent_id": agent_id or self.agent_id or "unknown",
                 "trace_data": trace_data,
                 "span_count": len(trace_data.get("spans", [])),
+                "outcome": outcome,
             },
         )
         response.raise_for_status()
@@ -338,6 +341,7 @@ class AsyncEngramClient:
         trace_data: dict[str, Any],
         agent_id: str | None = None,
         process_async: bool = True,
+        outcome: str = "unknown",
     ) -> TraceResult:
         """Ingest an agent execution trace."""
         response = await self._client.post(
@@ -347,6 +351,7 @@ class AsyncEngramClient:
                 "agent_id": agent_id or self.agent_id or "unknown",
                 "trace_data": trace_data,
                 "span_count": len(trace_data.get("spans", [])),
+                "outcome": outcome,
             },
         )
         response.raise_for_status()

@@ -2,12 +2,12 @@ import logging
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 
 from app.api.deps import AsyncSessionDep
 from app.db.models import Trace
-from app.schemas.trace import TraceBatchCreate, TraceBatchResponse, TraceCreate, TraceResponse, TraceStatus
+from app.schemas.trace import TraceBatchCreate, TraceBatchResponse, TraceCreate, TraceDeleteBulk, TraceResponse, TraceStatus
 from app.services.ingestion import compute_trace_hash, check_trace_duplicate, ingest_trace_batch
 
 router = APIRouter(prefix="/traces", tags=["traces"])
@@ -124,6 +124,26 @@ async def get_trace(trace_id: UUID, session: AsyncSessionDep) -> Trace:
             detail=f"Trace {trace_id} not found",
         )
     return trace
+
+
+@router.delete("/{trace_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_trace(trace_id: UUID, session: AsyncSessionDep) -> None:
+    """Delete a trace by ID. Cascades to related failure queue and lesson retrieval entries."""
+    trace = await session.get(Trace, trace_id)
+    if not trace:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Trace {trace_id} not found",
+        )
+    await session.delete(trace)
+    await session.commit()
+
+
+@router.post("/delete", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_traces_bulk(body: TraceDeleteBulk, session: AsyncSessionDep) -> None:
+    """Bulk delete traces by IDs (max 100). Cascades to related entries."""
+    await session.execute(delete(Trace).where(Trace.id.in_(body.ids)))
+    await session.commit()
 
 
 @router.get("", response_model=list[TraceResponse])

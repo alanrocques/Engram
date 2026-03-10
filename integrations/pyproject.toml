@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Integration tests for Engram with real-world agent projects"
 requires-python = ">=3.12"
 dependencies = [
+    "anthropic>=0.40.0",
     "httpx>=0.28.0",
     "pydantic>=2.10.0",
     "pytest>=8.3.0",
@@ -12,4 +13,4 @@ dependencies = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["langflow/tests", "hercules/tests"]
+testpaths = ["langflow/tests", "hercules/tests", "skyvern/tests"]
