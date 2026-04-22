@@ -1,18 +1,21 @@
-"""Browser task definitions for Skyvern integration.
+"""Browser task definitions for Skyvern + Engram demo.
 
-Uses the-internet.herokuapp.com — a stable public test site. Tasks are
-designed to exploit real browser-agent failure modes:
+Uses the-internet.herokuapp.com — a stable public test site.
 
-- Deliberately vague prompts that omit critical interaction details
-- Multi-step workflows requiring page navigation + state tracking
-- JS alerts/prompts that block execution if not handled
-- Nested iframes that break standard element targeting
-- Drag-and-drop and hover interactions that need non-obvious approaches
-- Tight step limits that punish wasted actions
+DESIGN PHILOSOPHY: Tasks use deliberately vague or misleading prompts
+that cause Skyvern to make specific, CORRECTABLE mistakes. When lessons
+are extracted from Round 1 failures, they provide actionable guidance
+that improves Round 2+ performance. This demonstrates the learning loop.
 
-Each pattern appears twice: an original task and a "learning check" variant.
-The learning check tests whether lessons extracted from the original failure
-transfer to a structurally similar but visually different task.
+Key failure modes exploited:
+- Ambiguous element references (which table? which checkbox?)
+- Missing wait/timing instructions for dynamic content
+- Wrong assumptions about default page state
+- Incomplete multi-step instructions that skip critical details
+
+Each pattern appears twice: an "explorer" task (likely to fail or
+partially succeed) and a "learning check" (structurally similar,
+should benefit from lessons learned on the explorer).
 """
 
 from __future__ import annotations
@@ -43,136 +46,33 @@ class BrowserTask:
 
 
 # ---------------------------------------------------------------------------
-# 8 tasks: 4 failure-prone patterns x 2 (original + learning check)
+# 8 tasks: 4 failure-prone patterns x 2 (explorer + learning check)
 #
-# Pattern 1: JS Alerts — agents try to interact with the page while a JS
-#   dialog is blocking. Must dismiss the dialog first.
-# Pattern 2: Nested Iframes — standard selectors can't reach elements
-#   inside iframes. Agent must switch context.
-# Pattern 3: Multi-step with state — requires navigating across pages
-#   while remembering data from a previous page.
-# Pattern 4: Deliberately vague prompt — omits key details the agent
-#   must discover by reading the page itself.
+# Pattern 1: Ambiguous table query — agent picks the wrong table or
+#   doesn't sort before extracting, getting wrong data.
+# Pattern 2: Dynamic content timing — agent extracts before the
+#   content has loaded, getting empty/stale data.
+# Pattern 3: Checkbox state verification — agent doesn't check
+#   the default state before acting, producing wrong results.
+# Pattern 4: Dropdown + verification — agent selects but doesn't
+#   verify what's actually selected, or picks wrong option.
 # ---------------------------------------------------------------------------
 
 TASK_LIST: list[BrowserTask] = [
     # -----------------------------------------------------------------------
-    # Pattern 1: JS Alert handling
-    # Agents commonly fail because JS confirm/prompt dialogs block all
-    # interaction. The agent must handle the dialog before proceeding.
+    # Pattern 1: Ambiguous table query
+    # The page has TWO tables. The prompt says "the table" without
+    # specifying which one. Agents typically pick Table 1 (first in DOM)
+    # but the answer is in Table 2. Lesson: "use Example 2 / Table 2."
     # -----------------------------------------------------------------------
     BrowserTask(
-        id="js-alert-confirm",
-        title="Trigger JS confirm and capture result text",
-        url="https://the-internet.herokuapp.com/javascript_alerts",
-        prompt=(
-            "On this page there are buttons that trigger JavaScript dialogs. "
-            "Click the button that triggers a JS Confirm dialog. "
-            "When the dialog appears, accept it (click OK). "
-            "Then read the result message that appears on the page and extract it."
-        ),
-        max_steps=8,
-        validation=TaskValidation(
-            mode="data_extraction",
-            data_extraction_schema={
-                "type": "object",
-                "properties": {
-                    "result_text": {
-                        "type": "string",
-                        "description": "The result message displayed on the page after handling the dialog",
-                    },
-                },
-            },
-            expected_data={"result_text": "You clicked: Ok"},
-        ),
-        tags=["js-alerts", "dialogs", "confirm"],
-    ),
-
-    # -----------------------------------------------------------------------
-    # Pattern 2: Nested Iframes
-    # Elements inside iframes are invisible to standard selectors.
-    # Agent must identify and switch into the correct frame context.
-    # -----------------------------------------------------------------------
-    BrowserTask(
-        id="nested-frames-extract",
-        title="Extract text from nested iframes",
-        url="https://the-internet.herokuapp.com/nested_frames",
-        prompt=(
-            "This page contains nested iframes. There is a top frame divided into "
-            "left, middle, and right sections, and a bottom frame. "
-            "Extract the text content from the MIDDLE frame."
-        ),
-        max_steps=10,
-        validation=TaskValidation(
-            mode="data_extraction",
-            data_extraction_schema={
-                "type": "object",
-                "properties": {
-                    "middle_frame_text": {
-                        "type": "string",
-                        "description": "The text content found inside the middle frame",
-                    },
-                },
-            },
-            expected_data={"middle_frame_text": "MIDDLE"},
-        ),
-        tags=["iframes", "nested-frames", "context-switching"],
-    ),
-
-    # -----------------------------------------------------------------------
-    # Pattern 3: Multi-step with state tracking
-    # Agent must navigate through multiple pages, remembering information
-    # from earlier steps to complete the final action.
-    # -----------------------------------------------------------------------
-    BrowserTask(
-        id="login-then-secure-content",
-        title="Login and extract secure area content",
-        url="https://the-internet.herokuapp.com/login",
-        prompt=(
-            "First, log in using username 'tomsmith' and password 'SuperSecretPassword!'. "
-            "After logging in successfully, you will be redirected to a secure area. "
-            "On that secure area page, extract the main heading text (the h2 element) "
-            "AND the full text of the flash message that confirms login. "
-            "Do NOT log out."
-        ),
-        max_steps=10,
-        validation=TaskValidation(
-            mode="data_extraction",
-            data_extraction_schema={
-                "type": "object",
-                "properties": {
-                    "secure_heading": {
-                        "type": "string",
-                        "description": "The h2 heading text on the secure area page",
-                    },
-                    "flash_message": {
-                        "type": "string",
-                        "description": "The flash success message after login",
-                    },
-                },
-            },
-            expected_data={
-                "secure_heading": "Secure Area",
-                "flash_message": "You logged into a secure area!",
-            },
-        ),
-        tags=["multi-step", "login", "state-tracking", "navigation"],
-    ),
-
-    # -----------------------------------------------------------------------
-    # Pattern 4: Deliberately vague — agent must discover page structure
-    # Prompt gives minimal info. Agent must read the page, understand
-    # the interface, and figure out the right interaction.
-    # -----------------------------------------------------------------------
-    BrowserTask(
-        id="sortable-table-query",
-        title="Find the highest-paid person in the table",
+        id="table-ambiguous-lookup",
+        title="Find who owes the most in the data table",
         url="https://the-internet.herokuapp.com/tables",
         prompt=(
-            "There are tables on this page. Look at the SECOND table (Example 2). "
-            "Sort the table by the 'Due' column (highest first) by clicking the column header. "
-            "After sorting, extract the last name of the person in the FIRST row "
-            "(who should have the highest due amount) and their due amount."
+            "There is a data table on this page showing people and amounts due. "
+            "Find the person who owes the MOST money. "
+            "Extract their last name and the due amount."
         ),
         max_steps=10,
         validation=TaskValidation(
@@ -182,7 +82,7 @@ TASK_LIST: list[BrowserTask] = [
                 "properties": {
                     "last_name": {
                         "type": "string",
-                        "description": "Last name of the person with the highest due",
+                        "description": "Last name of the person who owes the most",
                     },
                     "due_amount": {
                         "type": "string",
@@ -190,26 +90,60 @@ TASK_LIST: list[BrowserTask] = [
                     },
                 },
             },
-            # After sorting Due descending, Conway ($100.00) should be first
+            # Conway owes $100.00 — highest in either table
             expected_data={"last_name": "Conway", "due_amount": "$100.00"},
         ),
-        tags=["tables", "sorting", "data-extraction", "multi-step"],
+        tags=["tables", "ambiguity", "data-extraction"],
     ),
 
     # -----------------------------------------------------------------------
-    # LEARNING CHECKS — structurally similar to patterns 1-4 above
+    # Pattern 2: Dynamic content — must wait for loading
+    # Agent needs to click "Start", WAIT for loading to finish, then
+    # extract text. Without waiting, it gets nothing or "Loading..."
+    # Lesson: "click Start and wait 5+ seconds for loading to complete."
     # -----------------------------------------------------------------------
-
-    # Learning check for Pattern 1: JS Prompt (more complex than confirm)
     BrowserTask(
-        id="js-alert-prompt",
-        title="Handle JS prompt dialog and verify custom input",
-        url="https://the-internet.herokuapp.com/javascript_alerts",
+        id="dynamic-loading-extract",
+        title="Extract the dynamically loaded text",
+        url="https://the-internet.herokuapp.com/dynamic_loading/1",
         prompt=(
-            "Click the button that triggers a JS Prompt. "
-            "When the prompt dialog appears, type 'Engram' into the input field, "
-            "then accept it. "
-            "Extract the result text shown on the page after dismissing the prompt."
+            "This page has a Start button. There is hidden text that will appear. "
+            "Get the hidden text to appear and extract it."
+        ),
+        max_steps=10,
+        validation=TaskValidation(
+            mode="data_extraction",
+            data_extraction_schema={
+                "type": "object",
+                "properties": {
+                    "loaded_text": {
+                        "type": "string",
+                        "description": "The text that appears after loading completes",
+                    },
+                },
+            },
+            expected_data={"loaded_text": "Hello World!"},
+        ),
+        tags=["dynamic-content", "timing", "loading"],
+    ),
+
+    # -----------------------------------------------------------------------
+    # Pattern 3: Checkbox state — must check before toggling
+    # The page has 2 checkboxes. Checkbox 1 is unchecked, checkbox 2
+    # is checked by default. Prompt asks to "make sure checkbox 1 is
+    # checked and checkbox 2 is unchecked." Agent often toggles wrong
+    # ones or doesn't verify the default state.
+    # Lesson: "checkbox 2 starts CHECKED — uncheck it; checkbox 1
+    # starts UNCHECKED — check it."
+    # -----------------------------------------------------------------------
+    BrowserTask(
+        id="checkbox-state-management",
+        title="Set checkboxes to specific states",
+        url="https://the-internet.herokuapp.com/checkboxes",
+        prompt=(
+            "There are checkboxes on this page. "
+            "Make sure checkbox 1 is CHECKED and checkbox 2 is UNCHECKED. "
+            "Then report the final state of both checkboxes."
         ),
         max_steps=8,
         validation=TaskValidation(
@@ -217,87 +151,82 @@ TASK_LIST: list[BrowserTask] = [
             data_extraction_schema={
                 "type": "object",
                 "properties": {
-                    "result_text": {
-                        "type": "string",
-                        "description": "The result message displayed after the prompt was handled",
-                    },
-                },
-            },
-            expected_data={"result_text": "You entered: Engram"},
-        ),
-        tags=["js-alerts", "dialogs", "prompt", "learning-check"],
-    ),
-
-    # Learning check for Pattern 2: Single iframe (simpler but same concept)
-    BrowserTask(
-        id="iframe-editor-extract",
-        title="Extract text from WYSIWYG editor inside iframe",
-        url="https://the-internet.herokuapp.com/iframe",
-        prompt=(
-            "This page has a WYSIWYG text editor. The editor content is inside an iframe. "
-            "Extract whatever text is currently displayed in the editor area. "
-            "The editor is a TinyMCE component — the editable content is in an iframe, "
-            "not directly in the page DOM."
-        ),
-        max_steps=10,
-        validation=TaskValidation(
-            mode="data_extraction",
-            data_extraction_schema={
-                "type": "object",
-                "properties": {
-                    "editor_content": {
-                        "type": "string",
-                        "description": "The text content currently in the WYSIWYG editor",
-                    },
-                },
-            },
-            expected_data={"editor_content": "Your content goes here."},
-        ),
-        tags=["iframes", "wysiwyg", "editor", "learning-check"],
-    ),
-
-    # Learning check for Pattern 3: Multi-step with form + verify
-    BrowserTask(
-        id="digest-auth-flow",
-        title="Navigate to Digest Auth page and verify access",
-        url="https://the-internet.herokuapp.com",
-        prompt=(
-            "Starting from the main page, find and click the link to 'Digest Authentication'. "
-            "The page requires HTTP Digest Auth with credentials admin/admin. "
-            "Navigate to the URL with credentials embedded: "
-            "https://admin:admin@the-internet.herokuapp.com/digest_auth "
-            "Extract the success message from the page."
-        ),
-        max_steps=10,
-        validation=TaskValidation(
-            mode="data_extraction",
-            data_extraction_schema={
-                "type": "object",
-                "properties": {
-                    "success_message": {
-                        "type": "string",
-                        "description": "The success/congratulations message on the page",
-                    },
-                    "authenticated": {
+                    "checkbox_1_checked": {
                         "type": "boolean",
-                        "description": "Whether authentication succeeded",
+                        "description": "Whether checkbox 1 is checked after your actions",
+                    },
+                    "checkbox_2_checked": {
+                        "type": "boolean",
+                        "description": "Whether checkbox 2 is checked after your actions",
                     },
                 },
             },
-            expected_data={"authenticated": True},
+            expected_data={
+                "checkbox_1_checked": True,
+                "checkbox_2_checked": False,
+            },
         ),
-        tags=["multi-step", "authentication", "digest-auth", "navigation", "learning-check"],
+        tags=["checkboxes", "state-management", "verification"],
     ),
 
-    # Learning check for Pattern 4: Vague prompt requiring page discovery
+    # -----------------------------------------------------------------------
+    # Pattern 4: Dropdown selection + read-back
+    # Agent must select a specific option AND verify the selection.
+    # Common failure: agent reports what it *tried* to select, not what
+    # is actually selected. Or it reads the placeholder as a selection.
+    # Lesson: "verify the selection by re-reading the dropdown value
+    # after selecting."
+    # -----------------------------------------------------------------------
     BrowserTask(
-        id="broken-images-count",
-        title="Count the broken images on the page",
-        url="https://the-internet.herokuapp.com/broken_images",
+        id="dropdown-select-verify",
+        title="Select Option 2 from dropdown and verify",
+        url="https://the-internet.herokuapp.com/dropdown",
         prompt=(
-            "This page shows several images. Some of them are broken (they fail to load). "
-            "Figure out how many images are on the page total, and how many are broken. "
-            "A broken image typically shows a placeholder or fails to render."
+            "There is a dropdown on this page. "
+            "Select 'Option 2' from the dropdown. "
+            "After selecting, read back what option is currently selected "
+            "and also tell me how many total options are available."
+        ),
+        max_steps=8,
+        validation=TaskValidation(
+            mode="data_extraction",
+            data_extraction_schema={
+                "type": "object",
+                "properties": {
+                    "selected_option": {
+                        "type": "string",
+                        "description": "The currently selected option text",
+                    },
+                    "total_options": {
+                        "type": "integer",
+                        "description": "Total number of selectable options (not counting placeholder)",
+                    },
+                },
+            },
+            expected_data={
+                "selected_option": "Option 2",
+                "total_options": 2,
+            },
+        ),
+        tags=["dropdown", "selection", "verification"],
+    ),
+
+    # -----------------------------------------------------------------------
+    # LEARNING CHECKS — structurally similar to patterns 1-4
+    # These should benefit from lessons learned in the first 4 tasks.
+    # -----------------------------------------------------------------------
+
+    # Learning check for Pattern 1: Same table page, different query
+    # Lesson from task 1 should help agent know which table to use and
+    # that sorting is needed.
+    BrowserTask(
+        id="table-sort-and-extract",
+        title="Find the person with the lowest due amount",
+        url="https://the-internet.herokuapp.com/tables",
+        prompt=(
+            "Look at the data table showing people and amounts. "
+            "Find the person who owes the LEAST money. "
+            "Extract their last name and the due amount."
         ),
         max_steps=10,
         validation=TaskValidation(
@@ -305,26 +234,125 @@ TASK_LIST: list[BrowserTask] = [
             data_extraction_schema={
                 "type": "object",
                 "properties": {
-                    "total_images": {
-                        "type": "integer",
-                        "description": "Total number of images on the page",
+                    "last_name": {
+                        "type": "string",
+                        "description": "Last name of the person who owes the least",
                     },
-                    "broken_count": {
-                        "type": "integer",
-                        "description": "Number of broken/failed images",
+                    "due_amount": {
+                        "type": "string",
+                        "description": "The due amount (e.g., '$25.00')",
                     },
                 },
             },
-            expected_data={"broken_count": 2},
+            # Bach owes $25.00 — lowest in either table
+            expected_data={"last_name": "Bach", "due_amount": "$25.00"},
         ),
-        tags=["images", "broken-content", "page-analysis", "learning-check"],
+        tags=["tables", "sorting", "data-extraction", "learning-check"],
+    ),
+
+    # Learning check for Pattern 2: Same dynamic loading, different example
+    # Lesson from task 2 about waiting for content should transfer directly.
+    BrowserTask(
+        id="dynamic-loading-example2",
+        title="Extract dynamically rendered text (Example 2)",
+        url="https://the-internet.herokuapp.com/dynamic_loading/2",
+        prompt=(
+            "This page has content that will be dynamically added. "
+            "Trigger the content to load and extract the text that appears."
+        ),
+        max_steps=10,
+        validation=TaskValidation(
+            mode="data_extraction",
+            data_extraction_schema={
+                "type": "object",
+                "properties": {
+                    "loaded_text": {
+                        "type": "string",
+                        "description": "The text that appears after loading completes",
+                    },
+                },
+            },
+            expected_data={"loaded_text": "Hello World!"},
+        ),
+        tags=["dynamic-content", "timing", "loading", "learning-check"],
+    ),
+
+    # Learning check for Pattern 3: Same checkboxes, opposite goal
+    # Lesson about default states should help agent get it right.
+    BrowserTask(
+        id="checkbox-verify-defaults",
+        title="Verify and report checkbox default states",
+        url="https://the-internet.herokuapp.com/checkboxes",
+        prompt=(
+            "There are checkboxes on this page. WITHOUT clicking anything, "
+            "report the default state of each checkbox — which ones are "
+            "checked and which are unchecked when the page first loads."
+        ),
+        max_steps=5,
+        validation=TaskValidation(
+            mode="data_extraction",
+            data_extraction_schema={
+                "type": "object",
+                "properties": {
+                    "checkbox_1_checked": {
+                        "type": "boolean",
+                        "description": "Whether checkbox 1 is checked by default",
+                    },
+                    "checkbox_2_checked": {
+                        "type": "boolean",
+                        "description": "Whether checkbox 2 is checked by default",
+                    },
+                },
+            },
+            expected_data={
+                "checkbox_1_checked": False,
+                "checkbox_2_checked": True,
+            },
+        ),
+        tags=["checkboxes", "state-verification", "defaults", "learning-check"],
+    ),
+
+    # Learning check for Pattern 4: Same dropdown, different selection
+    # Lesson about verifying selection should transfer.
+    BrowserTask(
+        id="dropdown-select-option1",
+        title="Select Option 1 from dropdown and verify",
+        url="https://the-internet.herokuapp.com/dropdown",
+        prompt=(
+            "There is a dropdown on this page. "
+            "Select 'Option 1' from the dropdown. "
+            "After selecting, confirm what is selected and report "
+            "the default option that was shown before you made a selection."
+        ),
+        max_steps=8,
+        validation=TaskValidation(
+            mode="data_extraction",
+            data_extraction_schema={
+                "type": "object",
+                "properties": {
+                    "selected_option": {
+                        "type": "string",
+                        "description": "The currently selected option after your action",
+                    },
+                    "default_text": {
+                        "type": "string",
+                        "description": "The default/placeholder text shown before any selection",
+                    },
+                },
+            },
+            expected_data={
+                "selected_option": "Option 1",
+                "default_text": "Please select an option",
+            },
+        ),
+        tags=["dropdown", "selection", "defaults", "learning-check"],
     ),
 ]
 
-# Learning pairs: task index → paired task index
+# Learning pairs: (explorer_index, check_index, description)
 LEARNING_PAIRS = [
-    (0, 4, "JS Dialogs (confirm → prompt with input)"),
-    (1, 5, "Iframes (nested frames → WYSIWYG editor)"),
-    (2, 6, "Multi-Step Auth (login+extract → digest auth)"),
-    (3, 7, "Page Analysis (table sorting → broken images)"),
+    (0, 4, "Table Queries (highest due → lowest due)"),
+    (1, 5, "Dynamic Loading (Example 1 → Example 2)"),
+    (2, 6, "Checkbox States (toggle to target → verify defaults)"),
+    (3, 7, "Dropdown (select Option 2 → select Option 1)"),
 ]

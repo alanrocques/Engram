@@ -38,17 +38,52 @@ class SkyvernEngramWrapper:
     # ------------------------------------------------------------------
 
     def _augment_prompt(self, base_prompt: str, lessons: list[dict[str, Any]]) -> str:
-        """Prepend retrieved lessons to the task prompt."""
+        """Prepend retrieved lessons to the task prompt with strong framing."""
         if not lessons:
             return base_prompt
-        parts = ["IMPORTANT - Lessons from past attempts:\n"]
+        parts = [
+            "=== CRITICAL INSTRUCTIONS FROM PREVIOUS EXPERIENCE — YOU MUST FOLLOW THESE ===\n"
+        ]
         for i, lesson in enumerate(lessons, 1):
             text = lesson.get("lesson_text", lesson.get("content", ""))
             outcome = lesson.get("outcome", "unknown")
-            parts.append(f"{i}. [{outcome.upper()}] {text}")
-        parts.append("\nNow proceed with the task:\n")
+            if outcome == "failure":
+                parts.append(f"{i}. DO NOT: {text}")
+            else:
+                parts.append(f"{i}. DO: {text}")
+        parts.append(
+            "\nYou MUST apply the above lessons. Failure to follow these instructions will result in task failure."
+        )
+        parts.append("\n=== END OF CRITICAL INSTRUCTIONS ===\n")
         parts.append(base_prompt)
         return "\n".join(parts)
+
+    # ------------------------------------------------------------------
+    # Engram helpers
+    # ------------------------------------------------------------------
+
+    def _engram_api_post(self, path: str) -> dict[str, Any]:
+        """POST to an Engram API endpoint."""
+        url = f"{self.config.engram_base_url.rstrip('/')}{path}"
+        response = httpx.post(url, timeout=30.0)
+        response.raise_for_status()
+        return response.json()
+
+    def _wait_for_trace_processing(self, trace_id: str, timeout: float = 30.0) -> None:
+        """Poll until a trace is no longer 'pending'."""
+        url = f"{self.config.engram_base_url.rstrip('/')}/api/v1/traces/{trace_id}"
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            try:
+                response = httpx.get(url, timeout=10.0)
+                if response.status_code == 200:
+                    status = response.json().get("status", "pending")
+                    if status != "pending":
+                        return
+            except Exception:
+                pass
+            time.sleep(2.0)
+        print(f"  Warning: Trace {trace_id} still pending after {timeout}s")
 
     # ------------------------------------------------------------------
     # Skyvern API interaction
@@ -180,6 +215,7 @@ class SkyvernEngramWrapper:
         trace_data = build_trace(
             task, skyvern_result, outcome, score, details, retrieved_ids,
             detailed_steps=detailed_steps or None,
+            augmented_prompt=augmented_prompt,
         )
         trace_id = None
         try:
@@ -239,10 +275,9 @@ class SkyvernEngramWrapper:
         for i, task in enumerate(tasks, 1):
             result = self.run_task(task, i, len(tasks))
             results.append(result)
-            if i < len(tasks):
-                wait = self.config.task_delay_seconds
-                print(f"\n  Waiting {wait}s for lesson extraction...")
-                time.sleep(wait)
+            if i < len(tasks) and result.get("trace_id"):
+                print(f"\n  Waiting for trace processing...")
+                self._wait_for_trace_processing(result["trace_id"], timeout=30.0)
         return results
 
     def run_multi_round(
@@ -257,8 +292,19 @@ class SkyvernEngramWrapper:
             all_rounds.append(results)
 
             if r < rounds:
+                # Trigger batch failure analysis between rounds
+                try:
+                    print(f"\n  Triggering batch failure analysis...")
+                    batch_result = self._engram_api_post("/api/v1/failure-queue/analyze")
+                    created = batch_result.get("lessons_created", 0)
+                    if created:
+                        print(f"  Batch analysis created {created} root_cause lessons")
+                except Exception as e:
+                    print(f"  Warning: Batch analysis failed ({e})")
+
+                # Wait for any remaining processing
                 wait = self.config.round_delay_seconds
-                print(f"\n  === Waiting {wait}s between rounds for lesson extraction ===")
+                print(f"\n  === Waiting {wait}s between rounds ===")
                 time.sleep(wait)
 
         print_multi_round_summary(all_rounds)

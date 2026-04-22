@@ -85,6 +85,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "anthropic" },
+    { name = "engram-sdk" },
     { name = "httpx" },
     { name = "pydantic" },
     { name = "pytest" },
@@ -94,11 +95,30 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = ">=0.40.0" },
+    { name = "engram-sdk", editable = "../sdk/python" },
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "pydantic", specifier = ">=2.10.0" },
     { name = "pytest", specifier = ">=8.3.0" },
     { name = "pytest-asyncio", specifier = ">=0.24.0" },
 ]
+
+[[package]]
+name = "engram-sdk"
+version = "0.1.0"
+source = { editable = "../sdk/python" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.25.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23.0" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "h11"

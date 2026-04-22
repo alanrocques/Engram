@@ -29,7 +29,7 @@ async def retrieve_similar_lessons(
     search_mode: SearchMode = SearchMode.HYBRID,
     vector_weight: float = 0.7,
     include_archived: bool = False,
-    utility_weight: float = 0.3,
+    utility_weight: float = 0.1,
 ) -> list[dict]:
     """
     Retrieve lessons similar to the query using configurable search modes.

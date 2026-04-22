@@ -68,6 +68,24 @@ Respond ONLY with JSON:
   "error_signature": "short deterministic string identifying the failure pattern, max 80 chars (e.g. 'openai_rate_limit_on_completion', 'db_connection_timeout_retry_exhausted')"
 }}"""
 
+FAILURE_LESSON_PROMPT = """You are analyzing a failed AI agent execution trace to extract a specific, actionable lesson.
+
+Trace:
+<trace>
+{trace_json}
+</trace>
+
+Extract a failure lesson. Focus on: the SPECIFIC action that failed, WHY it failed, and a CONCRETE alternative action the agent should take instead. Do NOT give generic advice like "add error handling" — be specific to this exact failure.
+
+Respond ONLY with JSON:
+{{
+  "task_context": "what the agent was trying to do (1-2 sentences)",
+  "action_taken": "the specific action that failed and why (1-2 sentences)",
+  "lesson_text": "DO NOT: [specific bad action]. INSTEAD: [specific alternative]. REASON: [why the alternative works] (2-3 sentences)",
+  "tags": ["tag1", "tag2"],
+  "domain": "single domain category"
+}}"""
+
 BATCH_FAILURE_PROMPT = """You are analyzing {count} similar AI agent failures to extract a root cause lesson.
 
 Failures (same error signature: {error_signature}):
@@ -200,7 +218,7 @@ async def route_trace_extraction(
         return await _extract_success_pattern(trace, session)
     elif outcome_lower == "failure":
         await _queue_failure(trace, session)
-        return None
+        return await _extract_failure_lesson(trace, session)
     elif outcome_lower == "partial":
         return await _extract_partial_insight(trace, session)
     else:
@@ -246,6 +264,28 @@ async def _extract_partial_insight(trace: Trace, session: AsyncSession) -> Lesso
     await session.flush()
     await session.refresh(lesson)
     logger.info(f"Extracted comparative_insight lesson {lesson.id} from trace {trace.id}")
+    return lesson
+
+
+async def _extract_failure_lesson(trace: Trace, session: AsyncSession) -> Lesson | None:
+    """Extract an immediate failure_pattern lesson from a failed trace."""
+    trace_json = json.dumps(trace.trace_data, indent=2, default=str)
+    data = _call_claude(FAILURE_LESSON_PROMPT.format(trace_json=trace_json))
+    if not data:
+        return None
+
+    lesson = _build_lesson(
+        trace=trace,
+        data=data,
+        outcome="failure",
+        lesson_type="failure_pattern",
+        initial_utility=0.4,
+        extraction_mode="immediate",
+    )
+    session.add(lesson)
+    await session.flush()
+    await session.refresh(lesson)
+    logger.info(f"Extracted failure_pattern lesson {lesson.id} from trace {trace.id}")
     return lesson
 
 

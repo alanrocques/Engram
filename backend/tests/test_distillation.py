@@ -90,8 +90,8 @@ async def test_success_trace_creates_success_pattern_lesson(db_session):
     assert lesson.extraction_mode == "immediate"
 
 
-async def test_failure_trace_queues_and_returns_none(db_session):
-    """failure outcome → no lesson, failure_queue has 1 row."""
+async def test_failure_trace_queues_and_creates_lesson(db_session):
+    """failure outcome → failure_pattern lesson created AND failure_queue has 1 row."""
     trace = Trace(
         agent_id="test-agent",
         trace_data={"action": "api_call", "error": "timeout"},
@@ -103,17 +103,38 @@ async def test_failure_trace_queues_and_returns_none(db_session):
     await db_session.flush()
     await db_session.refresh(trace)
 
-    mock_response = {
+    classify_response = {
         "error_category": "timeout",
         "error_signature": "api_call_timeout",
     }
+    lesson_response = {
+        "task_context": "API call to external service",
+        "action_taken": "Called API without timeout handling",
+        "lesson_text": "DO NOT: call external APIs without a timeout. INSTEAD: set a 10s timeout and retry with backoff. REASON: prevents cascading failures.",
+        "tags": ["timeout", "api"],
+        "domain": "api",
+    }
 
-    with patch("app.services.extraction.get_anthropic_client", return_value=_make_claude_mock(mock_response)):
+    # Two sequential Claude calls: classify then extract
+    mock_client = MagicMock()
+    mock_msg_classify = MagicMock()
+    mock_msg_classify.content = [MagicMock(text=json.dumps(classify_response))]
+    mock_msg_lesson = MagicMock()
+    mock_msg_lesson.content = [MagicMock(text=json.dumps(lesson_response))]
+    mock_client.messages.create.side_effect = [mock_msg_classify, mock_msg_lesson]
+
+    with patch("app.services.extraction.get_anthropic_client", return_value=mock_client):
         from app.services.extraction import route_trace_extraction
         lesson = await route_trace_extraction(db_session, trace.id, "failure")
 
-    assert lesson is None
+    # Lesson should be created
+    assert lesson is not None
+    assert lesson.lesson_type == "failure_pattern"
+    assert lesson.outcome == "failure"
+    assert lesson.utility == pytest.approx(0.4)
+    assert lesson.extraction_mode == "immediate"
 
+    # Queue entry should also exist
     result = await db_session.execute(
         select(FailureQueue).where(FailureQueue.trace_id == trace.id)
     )

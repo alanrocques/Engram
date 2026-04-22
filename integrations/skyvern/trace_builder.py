@@ -22,6 +22,7 @@ def build_trace(
     validation_details: dict[str, Any],
     retrieved_ids: list[str],
     detailed_steps: list[dict[str, Any]] | None = None,
+    augmented_prompt: str | None = None,
 ) -> dict[str, Any]:
     """
     Build an Engram-compatible trace from a Skyvern task result.
@@ -89,7 +90,7 @@ def build_trace(
         "duration_ms": 50,
     })
 
-    return {
+    trace_data: dict[str, Any] = {
         "agent": "skyvern-engram-v1",
         "task": task.title,
         "task_id": task.id,
@@ -114,6 +115,11 @@ def build_trace(
         "tags": task.tags,
         "run_id": str(uuid.uuid4()),
     }
+
+    if augmented_prompt and augmented_prompt != task.prompt:
+        trace_data["augmented_prompt"] = augmented_prompt
+
+    return trace_data
 
 
 def _categorize_error(status: str, failure_reason: str) -> str:
